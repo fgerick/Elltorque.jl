@@ -1,6 +1,9 @@
 module Elltorque
 
-using LinearAlgebra, Statistics, Mire, GenericSchur, DoubleFloats
+using LinearAlgebra, Statistics, Mire, GenericSchur, DoubleFloats, JLD2
+
+export ModelSetup
+
 
 struct ModelSetup{T <: Real}
     a::T
@@ -23,9 +26,9 @@ b0_1_3(a,b,c) = [-y/b^2,x/a^2,0]
 b0_2_6(a,b,c) = [-z*x,z*y,c^2*(x^2/a^2-y^2/b^2)]
 
 #cubic base
-b0_2_6(a,b,c) = [-z*x^2,2*z*x*y,c^2*x*(x^2/a^2-2y^2/b^2)]
+b0_3_6(a,b,c) = [-z*x^2,2*z*x*y,c^2*x*(x^2/a^2-2y^2/b^2)]
 
-
+export b0_1_1,b0_1_2,b0_1_3,b0_2_6,b0_3_6
 
 
 
