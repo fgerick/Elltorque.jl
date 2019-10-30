@@ -16,26 +16,36 @@ function torquebalance(N,a,b,c,vs,us,ug,ua,bs,ω,b0,Ω)
     cmatbulk = Mire.cacheint_Hsxyzpoly(N,a,b,c)
     cmatbulk3var = Mire.cacheint(N,a,b,c)*pi
 
-    modes = [Mode(u,b,ω) for (u,b,ω) in zip(us,bs,ω)]
-    cmatsurf = [cacheint_surface_torque(N+3,i,a,b,c) for i=1:3]
+    nm = length(us)
+    Γp = [zeros(ComplexF64,nm) for i=1:3]
+    Γpageo,Γptot,Γcor,Γpmag,Lω,Lωa,Γem = [deepcopy(Γp) for i=1:7]
 
-    Γp = [[hydropressuretorque(m,b0,Ω,cmatbulk3var,i) for m in modes] for i=1:3]
-    Γpageo = [[hydroageopressuretorque(modes[j],ua[j],b0,Ω,cmatbulk,i) for j in 1:length(ua)] for i=1:3]
-
-    Γptot = [[totalpressuretorque(m,b0,Ω,cmatbulk3var,i) for m in modes] for i=1:3]
-
-    Γcor = [[coriolistorque(m.u,Ω,cmatbulk3var,i) for m in modes] for i=1:3]
-
-    psmag = [sum(m.b.*b0) for m in modes]
-    Γpmag = [[int_polynomial_ellipsoid(p,cmatsurf[i]) for p in psmag] for i=1:3]
-
-    Lω = [[angularmom(m.u,cmatbulk3var,i) for m in modes].*ω for i=1:3]
-    Lωa = [[angularmom(ua[j],cmatbulk,i) for j=1:length(ua)].*ω for i=1:3]
-
-    Γem = [[emtorque(m.b,b0,cmatbulk3var,i) for m in modes] for i=1:3]
+    for i = 1:3
+        cmatsurf = cacheint_surface_torque(N+3,i,a,b,c)
+        for j = 1:nm
+            Γp[i][j] = hydropressuretorque(us[j],bs[j],ω[j],b0,Ω,cmatbulk3var,i)
+            Γpageo[i][j] = hydroageopressuretorque(us[j],bs[j],ω[j],ua[j],b0,Ω,cmatbulk,i)
+            Γptot[i][j] = totalpressuretorque(us[j],bs[j],ω[j],b0,Ω,cmatbulk3var,i)
+            Γcor[i][j] = coriolistorque(us[j],Ω,cmatbulk3var,i)
+            Γpmag[i][j] = int_polynomial_ellipsoid(sum(bs[j].*b0),cmatsurf)
+            Lω[i][j] = angularmom(us[j],cmatbulk3var,i)*ω[j]
+            Lωa[i][j] = angularmom(ua[j],cmatbulk,i)*ω[j]
+            Γem[i][j] = emtorque(bs[j],b0,cmatbulk3var,i)
+        end
+    end
 
     return Γp, Γptot, Γpmag, Lω, Lωa, Γem, Γcor, Γpageo
 end
 
-
-# function loadandcalculatetorque(m::ModelSetup)
+function loadandcalculatetorque(m::ModelSetup{T,D}, datapath="", SAVEDATA=false) where {T <: Real,D <: ModelDim}
+    fname = joinpath(datapath,string(D)*"_$(m.name)_$(T)_N$(m.N).jld")
+    JLD2.@load fname A B vs S ω evecs m Ω us bs
+    ugua = split_ug_ua.(us,m.a,m.b,m.c)
+    ug,ua = getindex.(ugua,1), getindex.(ugua,2)
+    Γp, Γptot, Γpmag, Lω, Lωa, Γem, Γcor, Γpageo = torquebalance(m.N,m.a,m.b,m.c,vs,us,ug,ua,bs,ω,m.b0,Ω)
+    if SAVEDATA
+        fname = joinpath(datapath,"torquebalance_"*string(D)*"_$(m.name)_$(T)_N$(m.N).jld")
+        JLD2.@save fname Γp Γptot Γpmag Lω Lωa Γem Γcor Γpageo
+    end
+    return true
+end

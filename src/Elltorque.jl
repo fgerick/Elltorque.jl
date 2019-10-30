@@ -1,9 +1,11 @@
 module Elltorque
 
-using Reexport, LinearAlgebra, Statistics, GenericSchur, DoubleFloats, JLD2
+using Reexport, LinearAlgebra, Statistics, GenericSchur, DoubleFloats, JLD2,
+      MultivariatePolynomials, TypedPolynomials
 @reexport using Mire
 
-export ModelSetup, ModelDim, Full, Hybrid
+export ModelSetup, ModelDim, Full, Hybrid, calculatemodes, split_ug_ua,
+       torquebalance, loadandcalculatetorque
 
 abstract type ModelDim; end
 
@@ -42,13 +44,13 @@ b0_3_6(a,b,c) = [-z*x^2,2*z*x*y,c^2*x*(x^2/a^2-2y^2/b^2)]
 
 export b0_1_1,b0_1_2,b0_1_3,b0_2_6,b0_3_6
 
+
+
 include("analysis.jl")
-export calculatemodes
 
 include("geosplit.jl")
-export split_ug_ua
 
 include("torques.jl")
-export torquebalance
+
 
 end # module

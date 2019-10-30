@@ -52,7 +52,7 @@ function calculatemodes(m::ModelSetup{T,D},datapath="",SAVEDATA=false) where {T,
         us, bs = get_ub(evecs,vs,vs_qg, cmat)
     end
     if SAVEDATA
-        fname = joinpath(datapath,string(D)*"_$(m.name)_$(typeof(a))_N$(N).jld")
+        fname = joinpath(datapath,string(D)*"_$(m.name)_$(T)_N$(m.N).jld")
         JLD2.@save fname A B vs S ω evecs m Ω us bs
     end
     return true
