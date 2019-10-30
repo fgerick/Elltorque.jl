@@ -4,7 +4,7 @@ using Test
 
 
 SAVEDATA=true
-datapath="/Users/gerickf/data/"
+datapath=""
 
 
 
