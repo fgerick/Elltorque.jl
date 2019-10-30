@@ -1,11 +1,19 @@
 module Elltorque
 
-using LinearAlgebra, Statistics, Mire, GenericSchur, DoubleFloats, JLD2
+using Reexport, LinearAlgebra, Statistics, GenericSchur, DoubleFloats, JLD2
+@reexport using Mire
 
-export ModelSetup
+export ModelSetup, ModelDim, Full, Hybrid
+
+abstract type ModelDim; end
+
+struct Full <: ModelDim; end
+struct Hybrid <: ModelDim; end
+
+# struct QG <: ModelDim; end TODO
 
 
-struct ModelSetup{T <: Real}
+struct ModelSetup{T <: Real, D <: ModelDim}
     a::T
     b::T
     c::T
@@ -15,7 +23,9 @@ struct ModelSetup{T <: Real}
     N::Int
 end
 
-ModelSetup(a::T,b::T,c::T,Le::T,b0fun::Function,name::String,N::Int) where T <: Real = ModelSetup{T}(a,b,c,Le,b0fun(a,b,c),name,N)
+
+
+ModelSetup(a::T,b::T,c::T,Le::T,b0fun::Function,name::String,N::Int, ::D) where {T <: Real, D <: ModelDim} = ModelSetup{T,D}(a,b,c,Le,b0fun(a,b,c),name,N)
 
 #selected mean magnetic fields satisfying b₀⋅n=0 and ∇⋅b₀=0 from Wu & Roberts, 2011.
 
@@ -32,11 +42,13 @@ b0_3_6(a,b,c) = [-z*x^2,2*z*x*y,c^2*x*(x^2/a^2-2y^2/b^2)]
 
 export b0_1_1,b0_1_2,b0_1_3,b0_2_6,b0_3_6
 
-include("3d.jl")
+include("analysis.jl")
 export calculatemodes
 
-include("hybrid.jl")
-export calculatemodes_hybrid
+include("geosplit.jl")
+export split_ug_ua
 
+include("torques.jl")
+export torquebalance
 
 end # module
