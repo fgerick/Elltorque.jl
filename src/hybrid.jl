@@ -18,7 +18,7 @@ end
 function calculatemodes_hybrid(m::ModelSetup,datapath="",SAVEDATA=false)
     a, b, c, Le, b0, N = m.a, m.b, m.c, m.Le, m.b0, m.N
     Ω = [0,0,1/Le]
-    LHS, RHS, vs, vs_qg = Mire.assemblemhd_hybrid(N, N a, b, c, Ω, b0)
+    LHS, RHS, vs, vs_qg = Mire.assemblemhd_hybrid(N, N, a, b, c, Ω, b0)
     A, B = complex.(Matrix(RHS)), complex.(Matrix(LHS))
     cmat = cacheint(N, a, b, c)
     S = GenericSchur.schur(A, B)

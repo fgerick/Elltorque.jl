@@ -18,5 +18,8 @@ datapath=""
 @testset "Run and save models" begin
     @test calculatemodes(m1,datapath,SAVEDATA)
     @test calculatemodes(m2,datapath,SAVEDATA)
+    @test calculatemodes_hybrid(m1,datapath,SAVEDATA)
+    @test calculatemodes_hybrid(m2,datapath,SAVEDATA)
+
     # Write your own tests here.
 end
