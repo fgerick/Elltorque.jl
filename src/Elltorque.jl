@@ -5,7 +5,7 @@ using Reexport, LinearAlgebra, Statistics, GenericSchur, DoubleFloats, JLD2,
 @reexport using Mire
 
 export ModelSetup, ModelDim, Full, Hybrid, calculatemodes, split_ug_ua,
-       torquebalance, loadandcalculatetorque
+       torquebalance, loadandcalculatetorque, runcalculations
 
 abstract type ModelDim; end
 

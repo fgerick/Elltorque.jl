@@ -157,7 +157,7 @@ uuid = "d6f4376e-aef5-505a-96c1-9c027394607a"
 
 [[Mire]]
 deps = ["HCubature", "LinearAlgebra", "MultivariatePolynomials", "SparseArrays", "SpecialFunctions", "Test", "TypedPolynomials"]
-git-tree-sha1 = "35559ca39555f28cffa05f385d96de89be30030e"
+git-tree-sha1 = "3d087a4820cf28112d3c8be817918da4ab3578b8"
 repo-rev = "master"
 repo-url = "https://github.com/fgerick/Mire.jl.git"
 uuid = "fe462080-2232-11e9-3a2e-c30dbf578c75"
