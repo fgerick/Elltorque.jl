@@ -37,14 +37,14 @@ function torquebalance(N,a,b,c,vs,us,ug,ua,bs,ω,b0,Ω)
     return Γp, Γptot, Γpmag, Lω, Lωa, Γem, Γcor, Γpageo
 end
 
-function loadandcalculatetorque(m::ModelSetup{T,D}, datapath="", SAVEDATA=false) where {T <: Real,D <: ModelDim}
-    fname = joinpath(datapath,string(D)*"_$(m.name)_$(T)_N$(m.N).jld")
+function loadandcalculatetorque(m::ModelSetup{T,D}, datapath="", SAVEDATA=false,dtypename="f64") where {T <: Real,D <: ModelDim}
+    fname = joinpath(datapath,string(D)*"_$(m.name)_"*dtypename*"_N$(m.N).jld")
     JLD2.@load fname A B vs S ω evecs m Ω us bs
     ugua = split_ug_ua.(us,m.a,m.b,m.c)
     ug,ua = getindex.(ugua,1), getindex.(ugua,2)
     Γp, Γptot, Γpmag, Lω, Lωa, Γem, Γcor, Γpageo = torquebalance(m.N,m.a,m.b,m.c,vs,us,ug,ua,bs,ω,m.b0,Ω)
     if SAVEDATA
-        fname = joinpath(datapath,"torquebalance_"*string(D)*"_$(m.name)_$(T)_N$(m.N).jld")
+        fname = joinpath(datapath,"torquebalance_"*string(D)*"_$(m.name)_"*dtypename*"_N$(m.N).jld")
         JLD2.@save fname Γp Γptot Γpmag Lω Lωa Γem Γcor Γpageo
     end
     return true

@@ -25,8 +25,8 @@ m3 = ModelSetup(a,b,c,Le,b0f, "ellipse1", 3, Full())
 
 @testset "3D models" begin
     for m in [m1,m2,m3] #,m4,m5]
-        @test calculatemodes(m,datapath,SAVEDATA)
-        @test loadandcalculatetorque(m,datapath,SAVEDATA)
+        @test calculatemodes(m,datapath,SAVEDATA,"df64")
+        @test loadandcalculatetorque(m,datapath,SAVEDATA,"df64")
     end
 end
 
@@ -46,7 +46,7 @@ m3 = ModelSetup(a,b,c,Le,b0f, "ellipse1", 3, Hybrid())
 
 @testset "Hybrid models" begin
     for m in [m1,m2,m3] #,m4,m5]
-        @test calculatemodes(m,datapath,SAVEDATA)
-        @test loadandcalculatetorque(m,datapath,SAVEDATA)
+        @test calculatemodes(m,datapath,SAVEDATA,"df64")
+        @test loadandcalculatetorque(m,datapath,SAVEDATA,"df64")
     end
 end

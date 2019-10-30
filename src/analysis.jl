@@ -30,7 +30,7 @@ function get_ub(evecs,vs,vs_qg,cmat)
 end
 
 
-function calculatemodes(m::ModelSetup{T,D},datapath="",SAVEDATA=false) where {T,D <: ModelDim}
+function calculatemodes(m::ModelSetup{T,D},datapath="",SAVEDATA=false,dtypename="f64") where {T,D <: ModelDim}
     a, b, c, Le, b0, N = m.a, m.b, m.c, m.Le, m.b0, m.N
     Ω = [0,0,1/Le]
 
@@ -52,7 +52,7 @@ function calculatemodes(m::ModelSetup{T,D},datapath="",SAVEDATA=false) where {T,
         us, bs = get_ub(evecs,vs,vs_qg, cmat)
     end
     if SAVEDATA
-        fname = joinpath(datapath,string(D)*"_$(m.name)_$(T)_N$(m.N).jld")
+        fname = joinpath(datapath,string(D)*"_$(m.name)_"*dtypename*"_N$(m.N).jld")
         JLD2.@save fname A B vs S ω evecs m Ω us bs
     end
     return true
@@ -75,8 +75,8 @@ function runcalculations(SAVEDATA,datapath)
     # m6 = ModelSetup(a,b,c,Le,b0_Aform, "ellipse3", 5, Full())
 
     for m in [m1,m2,m3,m4,m5]
-         calculatemodes(m,datapath,SAVEDATA)
-         loadandcalculatetorque(m,datapath,SAVEDATA)
+         calculatemodes(m,datapath,SAVEDATA,"df64")
+         loadandcalculatetorque(m,datapath,SAVEDATA,"df64")
     end
 
 
@@ -94,7 +94,7 @@ function runcalculations(SAVEDATA,datapath)
     # m6 = ModelSetup(a,b,c,Le,b0_Aform, "ellipse3", 5, Full())
 
     for m in [m1,m2,m3,m4,m5]
-        calculatemodes(m,datapath,SAVEDATA)
-        loadandcalculatetorque(m,datapath,SAVEDATA)
+        calculatemodes(m,datapath,SAVEDATA,"df64")
+        loadandcalculatetorque(m,datapath,SAVEDATA,"df64")
     end
 end
