@@ -25,7 +25,7 @@ function calculatemodes(m::ModelSetup,datapath="",SAVEDATA=false)
     evecs = eigvecs(S)
     us,bs = get_ub(evecs, vs, N, cmat)
     if SAVEDATA
-        fname = joinpath(datapath,"3d_$(m.name)_$(typeof(a))_N$(N).jld"
+        fname = joinpath(datapath,"3d_$(m.name)_$(typeof(a))_N$(N).jld")
         JLD2.@save fname A B vs S ω evecs m Ω us bs
     end
     return true
