@@ -16,7 +16,6 @@ jobs:
       script: julia --project=docs -e '
           using Pkg;
           Pkg.add(PackageSpec(url="https://github.com/fgerick/Mire.jl.git"));
-          Pkg.add(PackageSpec(url="https://github.com/fgerick/Elltorque.jl.git"));
           Pkg.develop(PackageSpec(path=pwd()));
           Pkg.instantiate();
           include("docs/make.jl");'
