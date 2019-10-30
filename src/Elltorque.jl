@@ -34,6 +34,7 @@ export b0_1_1,b0_1_2,b0_1_3,b0_2_6,b0_3_6
 
 include("3d.jl")
 export calculatemodes
+
 include("hybrid.jl")
 export calculatemodes_hybrid
 
