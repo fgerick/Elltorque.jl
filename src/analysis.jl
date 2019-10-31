@@ -29,6 +29,12 @@ function get_ub(evecs,vs,vs_qg,cmat)
     return us,bs
 end
 
+function eigen2(A,B; kwargs...)
+    C = inv(Matrix(B))*A
+    S = GenericSchur.triangularize(GenericSchur.gschur(C; kwargs...))
+    u = eigvecs(S)
+    return LinearAlgebra.Eigen(S.values, u)
+end
 
 function calculatemodes(m::ModelSetup{T,D},datapath="",SAVEDATA=false,dtypename="f64") where {T,D <: ModelDim}
     a, b, c, Le, b0, N = m.a, m.b, m.c, m.Le, m.b0, m.N
@@ -40,9 +46,14 @@ function calculatemodes(m::ModelSetup{T,D},datapath="",SAVEDATA=false,dtypename=
         LHS, RHS, vs, vs_qg = Mire.assemblemhd_hybrid(N, N, a, b, c, Ω, b0)
     end
 
+    # C = inv(Matrix(LHS))*RHS
+    # A,B = RHS, LHS
     A, B = complex.(Matrix(RHS)), complex.(Matrix(LHS))
     cmat = cacheint(N, a, b, c)
+    # S = eigen(C)
     S = GenericSchur.schur(A, B)
+    # S = eigen2(A,B,tol=eps(Float64)/100, maxiter=10^5)
+
     ω = S.values
     evecs = eigvecs(S)
 
@@ -61,6 +72,22 @@ end
 
 
 function runcalculations(SAVEDATA,datapath)
+    ## Hybrid models
+
+    df641 = one(Double64)
+    a,b,c,Le = df64"1.25",df64"0.8",df641,df64"1e-5"
+    b0f = (a,b,c)->b0_1_1(a,b,c)+b0_1_3(a,b,c)
+    m1 = ModelSetup(df641,df641,df641,Le, b0_1_3,"malkussphere",3, Hybrid())
+    m2 = ModelSetup(a,b,c,Le, b0_1_3,"malkusellipse",3, Hybrid())
+    m3 = ModelSetup(a,b,c,Le,b0f, "ellipse1", 3, Hybrid())
+    m4 = ModelSetup(a,b,c,Le,b0f, "ellipse2", 5, Hybrid())
+    m5 = ModelSetup(a,b,c,Le,b0_2_6, "ellipse3", 5, Hybrid())
+    # m6 = ModelSetup(a,b,c,Le,b0_Aform, "ellipse3", 5, Full())
+
+    for m in [m1,m2,m3,m4,m5]
+        calculatemodes(m,datapath,SAVEDATA,"df64")
+        loadandcalculatetorque(m,datapath,SAVEDATA,"df64")
+    end
 
     ## 3D models
 
@@ -81,20 +108,5 @@ function runcalculations(SAVEDATA,datapath)
 
 
 
-    ## Hybrid models
 
-    df641 = one(Double64)
-    a,b,c,Le = df64"1.25",df64"0.8",df641,df64"1e-5"
-    b0f = (a,b,c)->b0_1_1(a,b,c)+b0_1_3(a,b,c)
-    m1 = ModelSetup(df641,df641,df641,Le, b0_1_3,"malkussphere",3, Hybrid())
-    m2 = ModelSetup(a,b,c,Le, b0_1_3,"malkusellipse",3, Hybrid())
-    m3 = ModelSetup(a,b,c,Le,b0f, "ellipse1", 3, Hybrid())
-    m4 = ModelSetup(a,b,c,Le,b0f, "ellipse2", 5, Hybrid())
-    m5 = ModelSetup(a,b,c,Le,b0_2_6, "ellipse3", 5, Hybrid())
-    # m6 = ModelSetup(a,b,c,Le,b0_Aform, "ellipse3", 5, Full())
-
-    for m in [m1,m2,m3,m4,m5]
-        calculatemodes(m,datapath,SAVEDATA,"df64")
-        loadandcalculatetorque(m,datapath,SAVEDATA,"df64")
-    end
 end
