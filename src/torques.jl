@@ -13,16 +13,17 @@ coriolistorque(u,Ω,cmatbulk,coordinate) = int_polynomial_ellipsoid((coriolis(u,
 
 
 function torquebalance(N,a,b,c,vs,us,ug,ua,bs,ω,b0,Ω)
+    # @everywhere begin
     cmatbulk = Mire.cacheint_Hsxyzpoly(N,a,b,c)
     cmatbulk3var = Mire.cacheint(N,a,b,c)*pi
-
     nm = length(us)
     Γp = [zeros(ComplexF64,nm) for i=1:3]
     Γpageo,Γptot,Γcor,Γpmag,Lω,Lωa,Γem = [deepcopy(Γp) for i=1:7]
+    # end
 
-    for i = 1:3
+    @sync for i = 1:3
         cmatsurf = cacheint_surface_torque(N+3,i,a,b,c)
-        for j = 1:nm
+        @distributed for j = 1:nm
             Γp[i][j] = hydropressuretorque(us[j],bs[j],ω[j],b0,Ω,cmatbulk3var,i)
             Γpageo[i][j] = hydroageopressuretorque(us[j],bs[j],ω[j],ua[j],b0,Ω,cmatbulk,i)
             Γptot[i][j] = totalpressuretorque(us[j],bs[j],ω[j],b0,Ω,cmatbulk3var,i)
@@ -38,10 +39,12 @@ function torquebalance(N,a,b,c,vs,us,ug,ua,bs,ω,b0,Ω)
 end
 
 function loadandcalculatetorque(m::ModelSetup{T,D}, datapath="", SAVEDATA=false,dtypename="f64") where {T <: Real,D <: ModelDim}
+    # @everywhere begin
     fname = joinpath(datapath,string(D)*"_$(m.name)_"*dtypename*"_N$(m.N).jld")
     JLD2.@load fname A B vs S ω evecs m Ω us bs
     ugua = split_ug_ua.(us,m.a,m.b,m.c)
     ug,ua = getindex.(ugua,1), getindex.(ugua,2)
+    # end
     Γp, Γptot, Γpmag, Lω, Lωa, Γem, Γcor, Γpageo = torquebalance(m.N,m.a,m.b,m.c,vs,us,ug,ua,bs,ω,m.b0,Ω)
     if SAVEDATA
         fname = joinpath(datapath,"torquebalance_"*string(D)*"_$(m.name)_"*dtypename*"_N$(m.N).jld")

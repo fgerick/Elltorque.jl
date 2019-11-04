@@ -1,18 +1,17 @@
 module Elltorque
 
 using Reexport, LinearAlgebra, Statistics, GenericSchur, DoubleFloats, JLD2,
-      MultivariatePolynomials, TypedPolynomials
+      MultivariatePolynomials, TypedPolynomials, Distributed
 @reexport using Mire
 
-export ModelSetup, ModelDim, Full, Hybrid, calculatemodes, split_ug_ua,
+export ModelSetup, ModelDim, Full, Hybrid, QG, calculatemodes, split_ug_ua,
        torquebalance, loadandcalculatetorque, runcalculations
 
 abstract type ModelDim; end
 
 struct Full <: ModelDim; end
 struct Hybrid <: ModelDim; end
-
-# struct QG <: ModelDim; end TODO
+struct QG <: ModelDim; end
 
 
 struct ModelSetup{T <: Real, D <: ModelDim}
@@ -42,7 +41,18 @@ b0_2_6(a,b,c) = [-z*x,z*y,c^2*(x^2/a^2-y^2/b^2)]
 #cubic base
 b0_3_6(a,b,c) = [-z*x^2,2*z*x*y,c^2*x*(x^2/a^2-2y^2/b^2)]
 
-export b0_1_1,b0_1_2,b0_1_3,b0_2_6,b0_3_6
+#Aformulation
+
+function b0_Aform(p_xy,a,b,c)
+    ts = terms(p_xy)
+    out = zero(Mire.qg_vel(0,0,a,b,c))
+    for t in ts
+        out .+= coefficient(t).*Mire.qg_vel(exponents(t)...,a,b,c)
+    end
+    return out
+end
+
+export b0_1_1,b0_1_2,b0_1_3,b0_2_6,b0_3_6, b0_Aform
 
 
 
