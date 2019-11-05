@@ -44,15 +44,21 @@ function calculatemodes(m::ModelSetup{T,D},datapath="",SAVEDATA=false,dtypename=
         LHS, RHS, vs = Mire.assemblemhd(N, a, b, c, Ω, b0)
     elseif D==Hybrid
         LHS, RHS, vs, vs_qg = Mire.assemblemhd_hybrid(N, N, a, b, c, Ω, b0)
+    elseif D==QG
+        LHS, RHS, vs_qg = Mire.assemblemhd_qg(N, a, b, c, Ω, b0)
+    else
+        error("model must be one of: Full, Hybrid or QG!")
     end
 
-    # C = inv(Matrix(LHS))*RHS
-    # A,B = RHS, LHS
-    A, B = complex.(Matrix(RHS)), complex.(Matrix(LHS))
     cmat = cacheint(N, a, b, c)
-    # S = eigen(C)
-    S = GenericSchur.schur(A, B)
-    # S = eigen2(A,B,tol=eps(Float64)/100, maxiter=10^5)
+
+    if T <: LinearAlgebra.BlasFloat
+        A,B = Matrix(RHS), Matrix(LHS)
+        S = eigen(A, B)
+    else
+        A, B = complex.(Matrix(RHS)), complex.(Matrix(LHS))
+        S = GenericSchur.schur(A, B)
+    end
 
     ω = S.values
     evecs = eigvecs(S)
@@ -60,11 +66,20 @@ function calculatemodes(m::ModelSetup{T,D},datapath="",SAVEDATA=false,dtypename=
     if D == Full
         us, bs = get_ub(evecs, vs, cmat)
     elseif D == Hybrid
-        us, bs = get_ub(evecs,vs,vs_qg, cmat)
+        us, bs = get_ub(evecs, vs, vs_qg, cmat)
+    elseif D == QG
+        us, bs = get_ub(evecs, vs_qg, cmat)
     end
     if SAVEDATA
         fname = joinpath(datapath,string(D)*"_$(m.name)_"*dtypename*"_N$(m.N).jld")
-        JLD2.@save fname A B vs S ω evecs m Ω us bs
+        if D == Full
+            JLD2.@save fname A B vs S ω evecs m Ω us bs
+        elseif D == Hybrid
+            JLD2.@save fname A B vs vs_qg S ω evecs m Ω us bs
+        elseif D == QG
+            JLD2.@save fname A B vs_qg S ω evecs m Ω us bs
+        end
+
     end
     return true
 end
@@ -74,15 +89,30 @@ end
 function runcalculations(SAVEDATA,datapath)
 
     ## QG models
-        
 
-    ## Hybrid models
 
     df641 = one(Double64)
     a,b,c,Le = df64"1.25",df64"0.8",df641,df64"1e-5"
     b0f = (a,b,c)->b0_1_1(a,b,c)+b0_1_3(a,b,c)
     pAform = (x^0*y^0+x)/df64"3"
     b0Af = (a,b,c)-> b0_Aform(pAform,a,b,c)
+
+    m1qg = ModelSetup(df641,df641,df641,Le, b0_1_3,"malkussphere",3, QG())
+    m2qg = ModelSetup(a,b,c,Le, b0_1_3,"malkusellipse",3, QG())
+    m3qg = ModelSetup(a,b,c,Le,b0f, "ellipse1", 3, QG())
+    m4qg = ModelSetup(a,b,c,Le,b0f, "ellipse2", 5, QG())
+    m5qg = ModelSetup(a,b,c,Le,b0_2_6, "ellipse3", 5, QG())
+    m6qg = ModelSetup(a,b,c,Le,b0Af, "ellipse4", 5, QG())
+
+
+
+    for m in [m1qg,m2qg,m3qg,m4qg,m5qg,m6qg]
+        calculatemodes(m,datapath,SAVEDATA,"df64")
+        loadandcalculatetorque(m,datapath,SAVEDATA,"df64")
+    end
+
+    ## Hybrid models
+
     m1h = ModelSetup(df641,df641,df641,Le, b0_1_3,"malkussphere",3, Hybrid())
     m2h = ModelSetup(a,b,c,Le, b0_1_3,"malkusellipse",3, Hybrid())
     m3h = ModelSetup(a,b,c,Le,b0f, "ellipse1", 3, Hybrid())
@@ -97,16 +127,12 @@ function runcalculations(SAVEDATA,datapath)
 
     ## 3D models
 
-    # df641 = one(Double64)
-    # a,b,c,Le = df64"1.25",df64"0.8",df641,df64"1e-5"
-    # b0f = (a,b,c)->b0_1_1(a,b,c)+b0_1_3(a,b,c)
     m1 = ModelSetup(df641,df641,df641,Le, b0_1_3,"malkussphere",3, Full())
     m2 = ModelSetup(a,b,c,Le, b0_1_3,"malkusellipse",3, Full())
     m3 = ModelSetup(a,b,c,Le,b0f, "ellipse1", 3, Full())
     m4 = ModelSetup(a,b,c,Le,b0f, "ellipse2", 5, Full())
     m5 = ModelSetup(a,b,c,Le,b0_2_6, "ellipse3", 5, Full())
     m6 = ModelSetup(a,b,c,Le,b0Af, "ellipse4", 5, Full())
-    # m6 = ModelSetup(a,b,c,Le,b0_Aform, "ellipse3", 5, Full())
 
 
 
