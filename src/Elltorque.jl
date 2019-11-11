@@ -4,8 +4,7 @@ using Reexport, LinearAlgebra, Statistics, GenericSchur, DoubleFloats, JLD2,
       MultivariatePolynomials, TypedPolynomials, Distributed
 @reexport using Mire
 
-export ModelSetup, ModelDim, Full, Hybrid, QG, calculatemodes, split_ug_ua,
-       torquebalance, loadandcalculatetorque, runcalculations
+
 
 abstract type ModelDim; end
 
@@ -52,9 +51,6 @@ function b0_Aform(p_xy,a,b,c)
     return out
 end
 
-export b0_1_1,b0_1_2,b0_1_3,b0_2_6,b0_3_6, b0_Aform
-
-
 
 include("analysis.jl")
 
@@ -62,5 +58,12 @@ include("geosplit.jl")
 
 include("torques.jl")
 
+include("misc.jl")
+
+
+export ModelSetup, ModelDim, Full, Hybrid, QG, calculatemodes, split_ug_ua,
+       torquebalance, loadandcalculatetorque, runcalculations
+
+export b0_1_1,b0_1_2,b0_1_3,b0_2_6,b0_3_6, b0_Aform
 
 end # module

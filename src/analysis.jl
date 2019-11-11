@@ -2,11 +2,14 @@ function get_ub(evecs,vs,cmat)
     nev=size(evecs,2)
     us,bs=[],[]
     for i=1:nev
-        u = Mire.eigenvel(vs,evecs[1:end÷2,i]/mean(evecs[:,i]))
-        b = Mire.eigenvel(vs,evecs[end÷2+1:end,i]/mean(evecs[:,i]))
-        energyu = √Mire.inner_product(cmat,u,u)
-        energyb = √Mire.inner_product(cmat,b,b)
-        energy = energyu+energyb
+        # u = Mire.eigenvel(vs,evecs[1:end÷2,i]/mean(evecs[:,i]))
+        # b = Mire.eigenvel(vs,evecs[end÷2+1:end,i]/mean(evecs[:,i]))
+        u = Mire.eigenvel(vs,evecs[1:end÷2,i])#/mean(evecs[:,i]))
+        b = Mire.eigenvel(vs,evecs[end÷2+1:end,i])#/mean(evecs[:,i]))
+
+        energyu = Mire.inner_product(cmat,u,u)
+        energyb = Mire.inner_product(cmat,b,b)
+        energy = sqrt(energyu+energyb)
         push!(us,u/energy)
         push!(bs,b/energy)
     end
@@ -18,11 +21,11 @@ function get_ub(evecs,vs,vs_qg,cmat)
     nqg=length(vs_qg)
     us,bs=[],[]
     for i=1:nev
-        u = Mire.eigenvel(vs_qg,evecs[1:nqg,i]/mean(evecs[:,i]))
-        b = Mire.eigenvel(vs,evecs[nqg+1:end,i]/mean(evecs[:,i]))
-        energyu = √Mire.inner_product(cmat,u,u)
-        energyb = √Mire.inner_product(cmat,b,b)
-        energy = energyu+energyb
+        u = Mire.eigenvel(vs_qg,evecs[1:nqg,i])#/mean(evecs[:,i]))
+        b = Mire.eigenvel(vs,evecs[nqg+1:end,i])#/mean(evecs[:,i]))
+        energyu = Mire.inner_product(cmat,u,u)
+        energyb = Mire.inner_product(cmat,b,b)
+        energy = sqrt(energyu+energyb)
         push!(us,u/energy)
         push!(bs,b/energy)
     end
@@ -35,6 +38,7 @@ function eigen2(A,B; kwargs...)
     u = eigvecs(S)
     return LinearAlgebra.Eigen(S.values, u)
 end
+
 
 function calculatemodes(m::ModelSetup{T,D},datapath="",SAVEDATA=false,dtypename="f64") where {T,D <: ModelDim}
     a, b, c, Le, b0, N = m.a, m.b, m.c, m.Le, m.b0, m.N
@@ -83,33 +87,100 @@ function calculatemodes(m::ModelSetup{T,D},datapath="",SAVEDATA=false,dtypename=
     end
     return true
 end
+function calculatemodesthread(mutex,m::ModelSetup{T,D},datapath="",SAVEDATA=false,dtypename="f64", torques=true) where {T,D <: ModelDim}
+    a, b, c, Le, b0, N = m.a, m.b, m.c, m.Le, m.b0, m.N
+    Ω = [0,0,1/Le]
+
+    if D==Full
+        LHS, RHS, vs = Mire.assemblemhd(N, a, b, c, Ω, b0)
+    elseif D==Hybrid
+        LHS, RHS, vs, vs_qg = Mire.assemblemhd_hybrid(N, N, a, b, c, Ω, b0)
+    elseif D==QG
+        LHS, RHS, vs_qg = Mire.assemblemhd_qg(N, a, b, c, Ω, b0)
+    else
+        error("model must be one of: Full, Hybrid or QG!")
+    end
+
+    cmat = cacheint(N, a, b, c)
+
+    if T <: LinearAlgebra.BlasFloat
+        A,B = Matrix(RHS), Matrix(LHS)
+        S = eigen(A, B)
+    else
+        A, B = complex.(Matrix(RHS)), complex.(Matrix(LHS))
+        S = GenericSchur.schur(A, B)
+    end
+
+    ω = S.values
+    evecs = eigvecs(S)
+
+    if D == Full
+        us, bs = get_ub(evecs, vs, cmat)
+    elseif D == Hybrid
+        us, bs = get_ub(evecs, vs, vs_qg, cmat)
+    elseif D == QG
+        us, bs = get_ub(evecs, vs_qg, cmat)
+    end
+
+
+    ugua = split_ug_ua.(us,m.a,m.b,m.c)
+    ug,ua = getindex.(ugua,1), getindex.(ugua,2)
+    # end
+    # Γp, Γptot, Γpmag, Lω, Lωa, Γem, Γcor, Γpageo = torquebalance(m.N,m.a,m.b,m.c,us,ug,ua,bs,ω,m.b0,Ω)
+    if torques
+        Γp, Γptot, Γpmag, Lω, Γem, Γcor = torquebalance(m.N,m.a,m.b,m.c,us,ug,ua,bs,ω,m.b0,Ω)
+    end
+    # Γp_uni, Γptot_uni, Γpmag_uni, Lω_uni, Γem_uni, Γcor_uni = torquebalance(m.N,m.a,m.b,m.c,us,ug,ua,bs,ω,m.b0,Ω,takeuni=true)
+
+
+
+    lock(mutex)
+    if SAVEDATA
+        fname = joinpath(datapath,string(D)*"_$(m.name)_"*dtypename*"_N$(m.N).jld")
+        if D == Full
+            JLD2.@save fname A B vs S ω evecs m Ω us bs
+        elseif D == Hybrid
+            JLD2.@save fname A B vs vs_qg S ω evecs m Ω us bs
+        elseif D == QG
+            JLD2.@save fname A B vs_qg S ω evecs m Ω us bs
+        end
+    end
+
+    if SAVEDATA && torques
+        fname = joinpath(datapath,"torquebalance_"*string(D)*"_$(m.name)_"*dtypename*"_N$(m.N).jld")
+        JLD2.@save fname Γp Γptot Γpmag Lω Γem Γcor
+        # fname = joinpath(datapath,"torquebalance_uni_"*string(D)*"_$(m.name)_"*dtypename*"_N$(m.N).jld")
+        # JLD2.@save fname Γp_uni Γptot_uni Γpmag_uni Lω_uni Γem_uni Γcor_uni
+    end
+    unlock(mutex)
+    return true
+end
 
 
 
 function runcalculations(SAVEDATA,datapath)
-
     ## QG models
 
-
     df641 = one(Double64)
+
+    #earth:
+    # r0=df64"3480e3"
+    # b = (r0+df64"1e4")/r0
+    # a = 1/b
+    # c = df641
+    # Le = df64"0.0009320333592119371"
     a,b,c,Le = df64"1.25",df64"0.8",df641,df64"1e-5"
+    # a,b,c,Le = df641,df641,df641,df64"1e-5"
+
     b0f = (a,b,c)->b0_1_1(a,b,c)+b0_1_3(a,b,c)
     pAform = (x^0*y^0+x)/df64"3"
     b0Af = (a,b,c)-> b0_Aform(pAform,a,b,c)
 
     m1qg = ModelSetup(df641,df641,df641,Le, b0_1_3,"malkussphere",3, QG())
     m2qg = ModelSetup(a,b,c,Le, b0_1_3,"malkusellipse",3, QG())
-    m3qg = ModelSetup(a,b,c,Le,b0f, "ellipse1", 3, QG())
-    m4qg = ModelSetup(a,b,c,Le,b0f, "ellipse2", 5, QG())
-    m5qg = ModelSetup(a,b,c,Le,b0_2_6, "ellipse3", 5, QG())
-    m6qg = ModelSetup(a,b,c,Le,b0Af, "ellipse4", 5, QG())
+    m3qg = ModelSetup(a,b,c,Le,b0Af, "ellipse_aform", 5, QG())
 
-
-
-    for m in [m1qg,m2qg,m3qg,m4qg,m5qg,m6qg]
-        calculatemodes(m,datapath,SAVEDATA,"df64")
-        loadandcalculatetorque(m,datapath,SAVEDATA,"df64")
-    end
+    msqg = [m1qg,m2qg,m3qg]
 
     ## Hybrid models
 
@@ -120,10 +191,7 @@ function runcalculations(SAVEDATA,datapath)
     m5h = ModelSetup(a,b,c,Le,b0_2_6, "ellipse3", 5, Hybrid())
     m6h = ModelSetup(a,b,c,Le,b0Af, "ellipse4", 5, Hybrid())
 
-    for m in [m1h,m2h,m3h,m4h,m5h,m6h]
-        calculatemodes(m,datapath,SAVEDATA,"df64")
-        loadandcalculatetorque(m,datapath,SAVEDATA,"df64")
-    end
+    mshybrid = [m1h,m2h,m3h,m4h,m5h,m6h]
 
     ## 3D models
 
@@ -134,14 +202,35 @@ function runcalculations(SAVEDATA,datapath)
     m5 = ModelSetup(a,b,c,Le,b0_2_6, "ellipse3", 5, Full())
     m6 = ModelSetup(a,b,c,Le,b0Af, "ellipse4", 5, Full())
 
+    msfull = [m1,m2,m3,m4,m5,m6]
 
+    mall = vcat(msqg,mshybrid,msfull)
 
-    for m in [m1,m2,m3,m4,m5,m6]
-         calculatemodes(m,datapath,SAVEDATA,"df64")
-         loadandcalculatetorque(m,datapath,SAVEDATA,"df64")
+    # for m in mall
+    #     calculatemodes(m,datapath,SAVEDATA,"df64")
+    #     loadandcalculatetorque(m,datapath,SAVEDATA,"df64")
+    # end
+
+    mutex = Threads.Mutex()
+    Threads.@threads for m in mall
+        calculatemodesthread(mutex,m,datapath,SAVEDATA,"df64")
     end
 
 
+end
+
+
+
+
+
+function runcalculationslehnert(m0::ModelSetup{T,D},Les,SAVEDATA,datapath) where {T,D<:ModelDim}
+
+
+    mutex = Threads.Mutex()
+    Threads.@threads for i=1:length(Les)
+        m=ModelSetup{T,D}(m0.a,m0.b,m0.c,Les[i],m0.b0,"le_$i",m0.N)
+        calculatemodesthread(mutex,m,datapath,SAVEDATA,"df64",false)
+    end
 
 
 end
