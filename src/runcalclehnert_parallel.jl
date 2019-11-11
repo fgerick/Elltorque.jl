@@ -2,6 +2,7 @@
 using Distributed
 addprocs(parse(Int,ARGS[1]))
 datapath = ARGS[2]
+nle = parse(Int,ARGS[3])
 @show nprocs()
 @everywhere using Elltorque, DoubleFloats
 
@@ -53,7 +54,8 @@ datapath = ARGS[2]
     m0=m6
     T=Double64
     D=Full
-    Les=10.0.^range(-7,-1,length=50)
+
+    Les=10.0.^range(-7,-1,length=remotecall_fetch(()->nle,1))
 end
 
 @time @sync @distributed for i=1:length(Les)
