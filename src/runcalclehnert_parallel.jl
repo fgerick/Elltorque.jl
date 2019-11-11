@@ -59,5 +59,5 @@ end
 @time @sync @distributed for i=1:length(Les)
 
     m=ModelSetup{T,D}(m0.a,m0.b,m0.c,Les[i],m0.b0,"le_$i",m0.N)
-    Elltorque.calculatemodesthread(mutex,m,datapath,SAVEDATA,"df64",false)
+    Elltorque.calculatemodes(m,datapath,SAVEDATA,"df64")
 end
