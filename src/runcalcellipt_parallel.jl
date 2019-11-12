@@ -50,6 +50,6 @@ end
 
 @time @sync @distributed for i=1:length(bs)
     b0 = b0Af(1/bs[i],bs[i],m0.c)
-    m=ModelSetup{T,D}(1/bs[i],bs[i],m0.c,m0.Le,m0.b0,"b_$i",m0.N)
+    m=ModelSetup{T,D}(1/bs[i],bs[i],m0.c,m0.Le,b0,"b_$i",m0.N)
     Elltorque.calculatemodes(m,datapath,SAVEDATA,"df64")
 end
