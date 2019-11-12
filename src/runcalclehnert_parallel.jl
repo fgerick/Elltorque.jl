@@ -3,6 +3,8 @@ using Distributed
 addprocs(parse(Int,ARGS[1]))
 datapath = ARGS[2]
 nle = parse(Int,ARGS[3])
+imagfield = parse(Int,ARGS[4])
+
 @show nprocs()
 @everywhere using Elltorque, DoubleFloats
 
@@ -25,37 +27,29 @@ nle = parse(Int,ARGS[3])
     pAform = (x^0*y^0+x)/df64"3"
     b0Af = (a,b,c)-> b0_Aform(pAform,a,b,c)
 
-    m1qg = ModelSetup(df641,df641,df641,Le, b0_1_3,"malkussphere",3, QG())
-    m2qg = ModelSetup(a,b,c,Le, b0_1_3,"malkusellipse",3, QG())
-    m3qg = ModelSetup(a,b,c,Le,b0Af, "ellipse_aform", 5, QG())
-
-    msqg = [m1qg,m2qg,m3qg]
-
-    ## Hybrid models
-
-    m1h = ModelSetup(df641,df641,df641,Le, b0_1_3,"malkussphere",3, Hybrid())
-    m2h = ModelSetup(a,b,c,Le, b0_1_3,"malkusellipse",3, Hybrid())
-    m3h = ModelSetup(a,b,c,Le,b0f, "ellipse1", 3, Hybrid())
-    m4h = ModelSetup(a,b,c,Le,b0f, "ellipse2", 5, Hybrid())
-    m5h = ModelSetup(a,b,c,Le,b0_2_6, "ellipse3", 5, Hybrid())
-    m6h = ModelSetup(a,b,c,Le,b0Af, "ellipse4", 5, Hybrid())
-
-    mshybrid = [m1h,m2h,m3h,m4h,m5h,m6h]
 
     ## 3D models
 
-    m1 = ModelSetup(df641,df641,df641,Le, b0_1_3,"malkussphere",3, Full())
-    m2 = ModelSetup(a,b,c,Le, b0_1_3,"malkusellipse",3, Full())
-    m3 = ModelSetup(a,b,c,Le,b0f, "ellipse1", 3, Full())
-    m4 = ModelSetup(a,b,c,Le,b0f, "ellipse2", 5, Full())
-    m5 = ModelSetup(a,b,c,Le,b0_2_6, "ellipse3", 5, Full())
-    m6 = ModelSetup(a,b,c,Le,b0Af, "ellipse4", 5, Full())
+    ## 3D models
+    IMAG = remotecall_fetch(()->imagfield,1)
+    if IMAG==1
+        m0 = ModelSetup(df641,df641,df641,Le, b0_1_3,"malkussphere",3, Full())
+    elseif IMAG==2
+        m0 = ModelSetup(a,b,c,Le, b0_1_3,"malkusellipse",3, Full())
+    elseif IMAG==3
+        m0 = ModelSetup(a,b,c,Le,b0f, "ellipse1", 3, Full())
+    elseif IMAG==4
+        m0 = ModelSetup(a,b,c,Le,b0f, "ellipse2", 5, Full())
+    elseif IMAG==5
+        m0 = ModelSetup(a,b,c,Le,b0_2_6, "ellipse3", 5, Full())
+    elseif IMAG==6
+        m0 = ModelSetup(a,b,c,Le,b0Af, "ellipse4", 5, Full())
+    end
 
-    m0=m6
     T=Double64
     D=Full
-
-    Les=10.0.^range(-7,-1,length=remotecall_fetch(()->nle,1))
+    Les=10.0.^(-10.0.^range(log10.(7),0.0,length=remotecall_fetch(()->nle))
+    # Les=10.0.^range(-7,-1,length=remotecall_fetch(()->nle,1))
 end
 
 @time @sync @distributed for i=1:length(Les)
