@@ -1,7 +1,7 @@
 module Elltorque
 
 using Reexport, LinearAlgebra, Statistics, GenericSchur, DoubleFloats, JLD2,
-      MultivariatePolynomials, TypedPolynomials, Distributed
+      MultivariatePolynomials, TypedPolynomials, Distributed, LinearMaps, Arpack
 @reexport using Mire
 
 

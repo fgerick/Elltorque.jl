@@ -45,7 +45,8 @@ imagfield = parse(Int,ARGS[5])
 
     T=Double64
     D=Full
-    bs = range(df641,remotecall_fetch(()->bmax,1),length=remotecall_fetch(()->nb,1))
+    bs = 10.0.^range(0,log10.(remotecall_fetch(()->bmax,1)),length=remotecall_fetch(()->nb,1))
+    # bs = range(df641,remotecall_fetch(()->bmax,1),length=remotecall_fetch(()->nb,1))
 end
 
 @time @sync @distributed for i=1:length(bs)
