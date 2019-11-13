@@ -41,11 +41,13 @@ imagfield = parse(Int,ARGS[5])
         m0 = ModelSetup(a,b,c,Le,b0_2_6, "ellipse3", 5, Full())
     elseif IMAG==6
         m0 = ModelSetup(a,b,c,Le,b0Af, "ellipse4", 5, Full())
+    elseif IMAG==7
+        m0 = ModelSetup(a,b,c,Le,b0Af, "ellipse5", 7, Full())
     end
 
     T=Double64
     D=Full
-    bs = 10.0.^range(0,log10.(remotecall_fetch(()->bmax,1)),length=remotecall_fetch(()->nb,1))
+    bs = df64"10.0".^range(0,log10.(remotecall_fetch(()->bmax,1)),length=remotecall_fetch(()->nb,1))
     # bs = range(df641,remotecall_fetch(()->bmax,1),length=remotecall_fetch(()->nb,1))
 end
 
