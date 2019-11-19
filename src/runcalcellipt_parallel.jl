@@ -50,7 +50,7 @@ modeldim = parse(Int,ARGS[6])
     end
 
     T = Double64
-    D = Full
+    D = MDIM
     # bs = df64"10.0".^range(0,log10.(remotecall_fetch(()->bmax,1)),length=remotecall_fetch(()->nb,1))
     # bs = range(df641,remotecall_fetch(()->bmax,1),length=remotecall_fetch(()->nb,1))
     ϵs = df64"10.0".^range(-7,log10.(remotecall_fetch(()->bmax,1)),length=remotecall_fetch(()->nb,1))
