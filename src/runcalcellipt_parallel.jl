@@ -28,7 +28,7 @@ modeldim = parse(Int,ARGS[6])
     b0Af = (a,b,c)-> b0_Aform(pAform,a,b,c)
 
     ## 3D models
-    imdim = remotecall_fetch(()->madeldim,1)
+    imdim = remotecall_fetch(()->modeldim,1)
     MDIM = (imdim == 1) ? QG() : ((imdim == 2) ? Hybrid() : Full())
     IMAG = remotecall_fetch(()->imagfield,1)
     if IMAG == 1
