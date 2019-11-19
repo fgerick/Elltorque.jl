@@ -40,11 +40,13 @@ modeldim = parse(Int,ARGS[6])
     elseif IMAG == 4
         m0 = ModelSetup(a,b,c,Le,b0f, "ellipse2", 5, MDIM)
     elseif IMAG == 5
-        m0 = ModelSetup(a,b,c,Le,b0_2_6, "ellipse3", 5, MDIM)
+        m0 = ModelSetup(a,b,c,Le,b0_2_6, "b026_ellipse", 5, MDIM)
     elseif IMAG == 6
-        m0 = ModelSetup(a,b,c,Le,b0Af, "ellipse4", 5, MDIM)
+        m0 = ModelSetup(a,b,c,Le,b0Af, "aform_ellipse", 5, MDIM)
     elseif IMAG == 7
-        m0 = ModelSetup(a,b,c,Le,b0Af, "ellipse5", 7, MDIM)
+        m0 = ModelSetup(a,b,c,Le,b0Af, "aform_ellipse2", 7, MDIM)
+    elseif IMAG == 8
+        m0 = ModelSetup(a,b,c,Le,b0_2_6, "b026_ellipse2", 7, MDIM)
     end
 
     T = Double64
