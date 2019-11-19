@@ -1,7 +1,8 @@
 module Elltorque
 
 using Reexport, LinearAlgebra, Statistics, GenericSchur, DoubleFloats, JLD2,
-      MultivariatePolynomials, TypedPolynomials, Distributed, LinearMaps, Arpack
+      MultivariatePolynomials, TypedPolynomials, Distributed, LinearMaps,
+      Arpack, PyPlot
 @reexport using Mire
 
 
@@ -52,13 +53,15 @@ function b0_Aform(p_xy,a,b,c)
 end
 
 
+include("misc.jl")
+
 include("analysis.jl")
 
 include("geosplit.jl")
 
 include("torques.jl")
 
-include("misc.jl")
+include("track_malkus.jl")
 
 
 export ModelSetup, ModelDim, Full, Hybrid, QG, calculatemodes, split_ug_ua,

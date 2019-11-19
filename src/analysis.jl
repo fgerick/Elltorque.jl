@@ -1,4 +1,4 @@
-function get_ub(evecs,vs,cmat)
+function get_ub(evecs,vs,cmat; ekin=false)
     nev=size(evecs,2)
     us,bs=[],[]
     for i=1:nev
@@ -9,14 +9,22 @@ function get_ub(evecs,vs,cmat)
 
         energyu = Mire.inner_product(cmat,u,u)
         energyb = Mire.inner_product(cmat,b,b)
-        energy = sqrt(energyu+energyb)
-        push!(us,u/energy)
-        push!(bs,b/energy)
+        if ekin
+            u = u/√energyu
+            b = b/√energyb
+        else
+            en = sqrt(energyu + energyb)
+            u = u/en
+            b = b/en
+        end
+        # energy = ekin ? sqrt(energyu) :
+        push!(us,u)
+        push!(bs,b)
     end
     return us,bs
 end
 
-function get_ub(evecs,vs,vs_qg,cmat)
+function get_ub(evecs,vs,vs_qg,cmat; ekin=false)
     nev=size(evecs,2)
     nqg=length(vs_qg)
     us,bs=[],[]
@@ -25,9 +33,17 @@ function get_ub(evecs,vs,vs_qg,cmat)
         b = Mire.eigenvel(vs,evecs[nqg+1:end,i])#/mean(evecs[:,i]))
         energyu = Mire.inner_product(cmat,u,u)
         energyb = Mire.inner_product(cmat,b,b)
-        energy = sqrt(energyu+energyb)
-        push!(us,u/energy)
-        push!(bs,b/energy)
+        if ekin
+            u = u/√energyu
+            b = b/√energyb
+        else
+            en = sqrt(energyu + energyb)
+            u = u/en
+            b = b/en
+        end
+        # energy = ekin ? sqrt(energyu) :
+        push!(us,u)
+        push!(bs,b)
     end
     return us,bs
 end
@@ -112,6 +128,201 @@ function tracking_b_3d(N,a,bs,c,α,Le,s0,s1,σ0,LHS0,RHS0,cmat,b0f; verbose=fals
     end
     return λs,us,bsout,vss
 end
+
+function tracking_b(m::ModelSetup{T,D},ϵs,σ0,LHS0,RHS0,cmat,b0f; verbose=false, kwargs...) where {T<:Number,D<:ModelDim}
+    N,a,c,Le = m.N,m.a,m.c,m.Le
+    Ω = [0,0,1/Le]
+    k = 0
+    bsout = [bs[1]]
+    λs,us = [],[]
+    target = σ0
+    targets = [σ0]
+    utarget = [] #initial guess eigenvector
+    LHS = copy(LHS0)
+    RHS = copy(RHS0)
+    vss = []
+
+    db = bs[2]-bs[1]
+    dbt = db
+    bt = bs[1]
+    iter = 0
+
+    while bsout[end] + db >= bs[end]
+
+        if (k == 0 )
+            b = bs[1]
+        else
+            b = bsout[end]+db
+        end
+
+        if b < bt
+            b = bt
+        end
+
+        a = 1/b
+        # cmat = Mire.cacheint(N,a,b,c)
+        b0 = b0fun(a,b,c) #B0_malkus(a,b).+α*B0_x(a,b,c);
+        if D==Full
+            LHS, RHS, vs = Mire.assemblemhd(N, a, b, c, Ω, b0)
+        elseif D==Hybrid
+            LHS, RHS, vs, vs_qg = Mire.assemblemhd_hybrid(N, N, a, b, c, Ω, b0)
+        elseif D==QG
+            LHS, RHS, vs_qg = Mire.assemblemhd_qg(N, a, b, c, Ω, b0)
+        else
+            error("model must be one of: Full, Hybrid or QG!")
+        end
+
+
+
+        # λ,u = eigstarget(RHS, LHS, target; v0 = utarget, kwargs...)
+        λ,u = eigstarget(Float64.(RHS), Float64.(LHS), target; v0=utarget, kwargs...)
+        nev = length(λ)
+
+        # find correlating eigenvector:
+        if k == 0
+            imax = 1
+            bt = bs[1] + db
+        else
+            corrs = abs.([cor(real.(u[:,i]/mean(u[:,i])),real.(utarget/mean(utarget))) for i=1:nev])
+            corsort=sortperm(abs.(corrs),rev=true)
+            cors=corrs[corsort[1:nev]]
+            max_corr,imax = findmin(abs.(1.0 .- corrs))
+            if corrs[imax] < 0.99 #if no correlating eigenvector is found the parameter stepping is too high
+               if verbose
+                    @warn "Correlation is only $(corrs[imax])!, lowering step"
+                end
+                dbt /= 2
+                bt = bsout[end] + dbt
+                flush(stdout)
+                flush(stderr)
+                continue
+            else
+                push!(bsout,b)
+                bt = bsout[end] + db
+                dbt = db
+            end
+        end
+
+        push!(λs,λ[imax])
+        push!(us,u[:,imax])
+        push!(vss,vs)
+        target = λ[imax]
+        utarget = u[:,imax]
+        if verbose
+            @show b
+            ω = abs(target)
+            @show ω
+            flush(stdout)
+            flush(stderr)
+        end
+        push!(targets,target)
+        k+=1
+    end
+    return λs,us,bsout,vss
+end
+
+function tracking_ellipt(m::ModelSetup{T,D},ϵs,σ0,LHS0,RHS0,b0f; verbose=false, kwargs...) where {T<:Number,D<:ModelDim}
+    N,a,c,Le = m.N,m.a,m.c,m.Le
+    Ω = [0,0,1/Le]
+    k = 0
+    ϵsout = [ϵs[1]]
+    λs,us = [],[]
+    target = σ0
+    targets = [σ0]
+    utarget = [] #initial guess eigenvector
+    LHS = copy(LHS0)
+    RHS = copy(RHS0)
+    vss = []
+
+    dϵ = ϵs[2]-ϵs[1]
+    dϵt = dϵ
+    ϵt = ϵs[1]
+    iter = 0
+
+    while ϵsout[end] < ϵs[end]-eps()
+
+        if (k == 0 )
+            ϵ = ϵs[1]
+        else
+            ϵ = ϵsout[end]+dϵ
+        end
+
+        if ϵ > ϵt
+            ϵ = ϵt
+        end
+
+        if ϵ >= ϵs[end]
+            ϵ = ϵs[end]
+        end
+        b = ((1 - ϵ)/(1 + ϵ))^(1//4)
+        a = 1/b
+        # cmat = Mire.cacheint(N,a,b,c)
+        b0 = b0f(a,b,c) #B0_malkus(a,b).+α*B0_x(a,b,c);
+        if D==Full
+            LHS, RHS, vs = Mire.assemblemhd(N, a, b, c, Ω, b0)
+        elseif D==Hybrid
+            LHS, RHS, vs, vs_qg = Mire.assemblemhd_hybrid(N, N, a, b, c, Ω, b0)
+        elseif D==QG
+            LHS, RHS, vs = Mire.assemblemhd_qg(N, a, b, c, Ω, b0)
+        else
+            error("model must be one of: Full, Hybrid or QG!")
+        end
+
+
+
+        # λ,u = eigstarget(RHS, LHS, target; v0 = utarget, kwargs...)
+        λ,u = eigstarget(Float64.(RHS), Float64.(LHS), target; v0=utarget, kwargs...)
+        nev = length(λ)
+
+        # find correlating eigenvector:
+        if k == 0
+            imax = 1
+            ϵt = ϵs[1] + dϵ
+        else
+            corrs = abs.([cor(real.(u[:,i]/mean(u[:,i])),real.(utarget/mean(utarget))) for i=1:nev])
+            corsort=sortperm(abs.(corrs),rev=true)
+            cors=corrs[corsort[1:nev]]
+            max_corr,imax = findmin(abs.(1.0 .- corrs))
+            if corrs[imax] < 0.99 #if no correlating eigenvector is found the parameter stepping is too high
+               if verbose
+                    @warn "Correlation is only $(corrs[imax])!, lowering step"
+                end
+                dϵt /= 2
+                ϵt = ϵsout[end] + dϵt
+                flush(stdout)
+                flush(stderr)
+                continue
+            else
+                push!(ϵsout,ϵ)
+                dϵ = 1.2*(ϵsout[end]-ϵsout[end-1])
+                ϵt = ϵsout[end] + dϵ
+                dϵt = dϵ
+            end
+        end
+
+        push!(λs,λ[imax])
+        push!(us,u[:,imax])
+        if D==Full || D==QG
+            push!(vss,vs)
+        else
+            push!(vss,(vs,vs_qg))
+        end
+        target = λ[imax]
+        utarget = u[:,imax]
+        if verbose
+            @show ϵ
+            ω = abs(target)
+            @show ω
+            flush(stdout)
+            flush(stderr)
+        end
+        push!(targets,target)
+        k+=1
+    end
+    return λs,us,ϵsout,vss
+end
+
+
 
 function tracking_lehnert_3d(N,a,b,c,les,σ0,LHS0,RHS0,cmat, vs; verbose=false, kwargs...)
     k=0
@@ -338,7 +549,7 @@ function runcalculations(SAVEDATA,datapath)
     # a = 1/b
     # c = df641
     # Le = df64"0.0009320333592119371"
-    a,b,c,Le = df64"1.25",df64"0.8",df641,df64"1e-5"
+    a,b,c,Le = df64"1.25",df64"0.8",df641,df64"1e-4"
     # a,b,c,Le = df641,df641,df641,df64"1e-5"
 
     b0f = (a,b,c)->b0_1_1(a,b,c)+b0_1_3(a,b,c)
@@ -348,8 +559,9 @@ function runcalculations(SAVEDATA,datapath)
     m1qg = ModelSetup(df641,df641,df641,Le, b0_1_3,"malkussphere",3, QG())
     m2qg = ModelSetup(a,b,c,Le, b0_1_3,"malkusellipse",3, QG())
     m3qg = ModelSetup(a,b,c,Le,b0Af, "ellipse_aform", 5, QG())
+    m4qg = ModelSetup(a,b,c,Le,b0Af, "ellipse_aformn7", 7, QG())
 
-    msqg = [m1qg,m2qg,m3qg]
+    msqg = [m1qg,m2qg,m3qg,m4qg]
 
     ## Hybrid models
 
@@ -359,8 +571,11 @@ function runcalculations(SAVEDATA,datapath)
     m4h = ModelSetup(a,b,c,Le,b0f, "ellipse2", 5, Hybrid())
     m5h = ModelSetup(a,b,c,Le,b0_2_6, "ellipse3", 5, Hybrid())
     m6h = ModelSetup(a,b,c,Le,b0Af, "ellipse4", 5, Hybrid())
+    m7h = ModelSetup(a,b,c,Le,b0Af, "ellipse5", 3, Hybrid())
+    m8h = ModelSetup(a,b,c,Le,b0Af, "ellipse6", 7, Hybrid())
+    m9h = ModelSetup(a,b,c,Le,b0_2_6, "ellipse8", 7, Hybrid())
 
-    mshybrid = [m1h,m2h,m3h,m4h,m5h,m6h]
+    mshybrid = [m1h,m2h,m3h,m4h,m5h,m6h,m7h,m8h]
 
     ## 3D models
 

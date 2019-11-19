@@ -25,3 +25,4 @@ function plottingtorquebalance(m::ModelSetup{T,D}, SAVEFIG=false) where {T<:Real
 
     ax[3].set_xlim([0,1e6])
     f.savefig("figs/torquebalance_hybrid_Aform_n5.pdf", bbox_inches="tight")
+end

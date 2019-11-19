@@ -7,7 +7,7 @@ datapath = ARGS[2]
 nb = parse(Int,ARGS[3])
 bmax = parse(Double64,ARGS[4])
 imagfield = parse(Int,ARGS[5])
-
+modeldim = parse(Int,ARGS[6])
 
 @everywhere begin
 
@@ -28,31 +28,37 @@ imagfield = parse(Int,ARGS[5])
     b0Af = (a,b,c)-> b0_Aform(pAform,a,b,c)
 
     ## 3D models
+    imdim = remotcall_fetch(()->madeldim,1)
+    MDIM = (imdim == 1) ? QG() : ((imdim == 2) ? Hybrid() : Full())
     IMAG = remotecall_fetch(()->imagfield,1)
-    if IMAG==1
-        m0 = ModelSetup(df641,df641,df641,Le, b0_1_3,"malkussphere",3, Full())
-    elseif IMAG==2
-        m0 = ModelSetup(a,b,c,Le, b0_1_3,"malkusellipse",3, Full())
-    elseif IMAG==3
-        m0 = ModelSetup(a,b,c,Le,b0f, "ellipse1", 3, Full())
-    elseif IMAG==4
-        m0 = ModelSetup(a,b,c,Le,b0f, "ellipse2", 5, Full())
-    elseif IMAG==5
-        m0 = ModelSetup(a,b,c,Le,b0_2_6, "ellipse3", 5, Full())
-    elseif IMAG==6
-        m0 = ModelSetup(a,b,c,Le,b0Af, "ellipse4", 5, Full())
-    elseif IMAG==7
-        m0 = ModelSetup(a,b,c,Le,b0Af, "ellipse5", 7, Full())
+    if IMAG == 1
+        m0 = ModelSetup(df641,df641,df641,Le, b0_1_3,"malkussphere", 3, MDIM)
+    elseif IMAG == 2
+        m0 = ModelSetup(a,b,c,Le, b0_1_3, "malkusellipse", 3, MDIM)
+    elseif IMAG == 3
+        m0 = ModelSetup(a,b,c,Le,b0f, "ellipse1", 3, MDIM)
+    elseif IMAG == 4
+        m0 = ModelSetup(a,b,c,Le,b0f, "ellipse2", 5, MDIM)
+    elseif IMAG == 5
+        m0 = ModelSetup(a,b,c,Le,b0_2_6, "ellipse3", 5, MDIM)
+    elseif IMAG == 6
+        m0 = ModelSetup(a,b,c,Le,b0Af, "ellipse4", 5, MDIM)
+    elseif IMAG == 7
+        m0 = ModelSetup(a,b,c,Le,b0Af, "ellipse5", 7, MDIM)
     end
 
-    T=Double64
-    D=Full
-    bs = df64"10.0".^range(0,log10.(remotecall_fetch(()->bmax,1)),length=remotecall_fetch(()->nb,1))
+    T = Double64
+    D = Full
+    # bs = df64"10.0".^range(0,log10.(remotecall_fetch(()->bmax,1)),length=remotecall_fetch(()->nb,1))
     # bs = range(df641,remotecall_fetch(()->bmax,1),length=remotecall_fetch(()->nb,1))
+    ϵs = df64"10.0".^range(-7,log10.(0.5),length=remotecall_fetch(()->nb,1))
 end
 
-@time @sync @distributed for i=1:length(bs)
-    b0 = b0Af(1/bs[i],bs[i],m0.c)
-    m=ModelSetup{T,D}(1/bs[i],bs[i],m0.c,m0.Le,b0,"b_$i",m0.N)
+@time @sync @distributed for i=1:length(ϵs)
+    ϵ = ϵs[i]
+    b = ((1 - ϵ)/(1 + ϵ))^(1//4)
+    a = 1/b
+    b0 = b0Af(a,b,m0.c)
+    m=ModelSetup{T,D}(a,b,m0.c,m0.Le,b0,"eps_$i",m0.N)
     Elltorque.calculatemodes(m,datapath,SAVEDATA,"df64")
 end
