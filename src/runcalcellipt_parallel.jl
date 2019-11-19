@@ -21,7 +21,7 @@ modeldim = parse(Int,ARGS[6])
     # c = df641
     # Le = df64"0.0009320333592119371"
 
-    a,b,c,Le = df641,df641,df641,df64"1e-5"
+    a,b,c,Le = df641,df641,df641,df64"1e-4"
 
     b0f = (a,b,c)->b0_1_1(a,b,c)+b0_1_3(a,b,c)
     pAform = (x^0*y^0+x)/df64"3"
