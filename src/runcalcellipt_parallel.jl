@@ -28,7 +28,7 @@ modeldim = parse(Int,ARGS[6])
     b0Af = (a,b,c)-> b0_Aform(pAform,a,b,c)
 
     ## 3D models
-    imdim = remotcall_fetch(()->madeldim,1)
+    imdim = remotecall_fetch(()->madeldim,1)
     MDIM = (imdim == 1) ? QG() : ((imdim == 2) ? Hybrid() : Full())
     IMAG = remotecall_fetch(()->imagfield,1)
     if IMAG == 1
@@ -53,7 +53,7 @@ modeldim = parse(Int,ARGS[6])
     D = Full
     # bs = df64"10.0".^range(0,log10.(remotecall_fetch(()->bmax,1)),length=remotecall_fetch(()->nb,1))
     # bs = range(df641,remotecall_fetch(()->bmax,1),length=remotecall_fetch(()->nb,1))
-    ϵs = df64"10.0".^range(-7,log10.(0.5),length=remotecall_fetch(()->nb,1))
+    ϵs = df64"10.0".^range(-7,log10.(remotecall_fetch(()->bmax,1)),length=remotecall_fetch(()->nb,1))
 end
 
 @time @sync @distributed for i=1:length(ϵs)
