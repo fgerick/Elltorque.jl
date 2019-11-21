@@ -56,6 +56,10 @@ Le = parse(Double64,ARGS[7])
     elseif IMAG == 8
         b0f = b0_2_6
         m0 = ModelSetup(a,b,c,Le,b0f, "b026_ellipse2", 7, MDIM)
+    elseif IMAG == 9
+        b0f = b0_2_8
+        m0 = ModelSetup(a,b,c,Le,b0f, "b028_ellipse", 7, MDIM)
+
     end
 
     T = Double64

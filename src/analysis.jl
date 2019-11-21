@@ -554,7 +554,10 @@ function runcalculations(a,b,c,Le,SAVEDATA,datapath)
 
     b0f = (a,b,c)->b0_1_1(a,b,c)+b0_1_3(a,b,c)
     pAform = (x^0*y^0+x)/df64"3"
+    pAform2 = y^0*x/df64"3"
+
     b0Af = (a,b,c)-> b0_Aform(pAform,a,b,c)
+    b0Af2 = (a,b,c)-> b0_Aform(pAform2,a,b,c)
 
     m1qg = ModelSetup(one(a),one(b),one(c),Le, b0_1_3,"malkussphere",3, QG())
     m2qg = ModelSetup(a,b,c,Le, b0_1_3,"malkusellipse",3, QG())
@@ -576,8 +579,14 @@ function runcalculations(a,b,c,Le,SAVEDATA,datapath)
     m9h = ModelSetup(a,b,c,Le,b0_2_6, "ellipse_b267", 7, Hybrid())
     m10h = ModelSetup(a,b,c,Le,b0_2_9, "ellipse_b295", 5, Hybrid())
     m11h = ModelSetup(a,b,c,Le,b0_2_9, "ellipse_b297", 7, Hybrid())
+    m12h = ModelSetup(a,b,c,Le,b0_2_7, "ellipse_b275", 5, Hybrid())
+    m13h = ModelSetup(a,b,c,Le,b0Af2, "ellipse_a2form5", 5, Hybrid())
+    m14h = ModelSetup(a,b,c,Le,b0_2_7, "ellipse_b277", 7, Hybrid())
+    m15h = ModelSetup(a,b,c,Le,b0_3_6, "ellipse_b365", 5, Hybrid())
+    m15h = ModelSetup(a,b,c,Le,b0_2_8, "ellipse_b285", 5, Hybrid())
+    m16h = ModelSetup(a,b,c,Le,b0_1_1, "ellipse_unix5", 5, Hybrid())
 
-    mshybrid = [m1h,m2h,m3h,m4h,m5h,m6h,m7h,m8h,m9h,m10h,m11h]
+    mshybrid = [m1h,m2h,m3h,m4h,m5h,m6h,m7h,m8h,m9h,m10h,m11h,m12h]
 
     ## 3D models
 

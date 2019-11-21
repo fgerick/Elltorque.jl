@@ -46,7 +46,9 @@ b0_3_6(a,b,c) = [-z*x^2,2*z*x*y,c^2*x*(x^2/a^2-2y^2/b^2)]
 
 fijkl(i,j,k,l,a,b,c) = i - j*x^2/a^2 - k*y^2/b^2 - l*z^2/c^2
 
-b0_2_9(a,b,c) = [z*x,z*y,c^2*fijkl(1,2,2,1,a,b,c)]
+b0_2_7(a,b,c) = [a^2*fijkl(1,1,2,2,a,b,c), x*y, x*z]
+b0_2_8(a,b,c) = [y*x, b^2*fijkl(1,2,1,2,a,b,c), z*y]
+b0_2_9(a,b,c) = [z*x, z*y, c^2*fijkl(1,2,2,1,a,b,c)]
 
 #Aformulation
 
@@ -74,6 +76,6 @@ include("track_malkus.jl")
 export ModelSetup, ModelDim, Full, Hybrid, QG, calculatemodes, split_ug_ua,
        torquebalance, loadandcalculatetorque, runcalculations
 
-export b0_1_1,b0_1_2,b0_1_3,b0_2_6,b0_3_6, b0_Aform
+export b0_1_1,b0_1_2,b0_1_3,b0_2_6,b0_2_7,b0_2_8,b0_2_9,b0_3_6, b0_Aform
 
 end # module
