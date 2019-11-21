@@ -69,7 +69,6 @@ end
     ϵ = ϵs[i]
     b = ((1 - ϵ)/(1 + ϵ))^(1//4)
     a = 1/b
-    if IMAG ==
     b0 = b0f(a,b,m0.c)
     m=ModelSetup{T,D}(a,b,m0.c,m0.Le,b0,"eps_$i",m0.N)
     Elltorque.calculatemodes(m,datapath,SAVEDATA,"df64")
