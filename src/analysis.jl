@@ -538,53 +538,55 @@ end
 
 
 
-function runcalculations(SAVEDATA,datapath)
+function runcalculations(a,b,c,Le,SAVEDATA,datapath)
     ## QG models
 
-    df641 = one(Double64)
+    # df641 = one(Double64)
 
     #earth:
     # r0=df64"3480e3"
     # b = (r0+df64"1e4")/r0
     # a = 1/b
-    # c = df641
+    # c = df641df
     # Le = df64"0.0009320333592119371"
-    a,b,c,Le = df64"1.25",df64"0.8",df641,df64"1e-4"
+    # a,b,c,Le = df64"1.25",df64"0.8",df641,df64"1e-5"
     # a,b,c,Le = df641,df641,df641,df64"1e-5"
 
     b0f = (a,b,c)->b0_1_1(a,b,c)+b0_1_3(a,b,c)
     pAform = (x^0*y^0+x)/df64"3"
     b0Af = (a,b,c)-> b0_Aform(pAform,a,b,c)
 
-    m1qg = ModelSetup(df641,df641,df641,Le, b0_1_3,"malkussphere",3, QG())
+    m1qg = ModelSetup(one(a),one(b),one(c),Le, b0_1_3,"malkussphere",3, QG())
     m2qg = ModelSetup(a,b,c,Le, b0_1_3,"malkusellipse",3, QG())
-    m3qg = ModelSetup(a,b,c,Le,b0Af, "ellipse_aform", 5, QG())
-    m4qg = ModelSetup(a,b,c,Le,b0Af, "ellipse_aformn7", 7, QG())
+    m3qg = ModelSetup(a,b,c,Le,b0Af, "ellipse_aform5", 5, QG())
+    m4qg = ModelSetup(a,b,c,Le,b0Af, "ellipse_aform7", 7, QG())
 
     msqg = [m1qg,m2qg,m3qg,m4qg]
 
     ## Hybrid models
 
-    m1h = ModelSetup(df641,df641,df641,Le, b0_1_3,"malkussphere",3, Hybrid())
+    m1h = ModelSetup(one(a),one(b),one(c),Le, b0_1_3,"malkussphere",3, Hybrid())
     m2h = ModelSetup(a,b,c,Le, b0_1_3,"malkusellipse",3, Hybrid())
-    m3h = ModelSetup(a,b,c,Le,b0f, "ellipse1", 3, Hybrid())
-    m4h = ModelSetup(a,b,c,Le,b0f, "ellipse2", 5, Hybrid())
-    m5h = ModelSetup(a,b,c,Le,b0_2_6, "ellipse3", 5, Hybrid())
-    m6h = ModelSetup(a,b,c,Le,b0Af, "ellipse4", 5, Hybrid())
-    m7h = ModelSetup(a,b,c,Le,b0Af, "ellipse5", 3, Hybrid())
-    m8h = ModelSetup(a,b,c,Le,b0Af, "ellipse6", 7, Hybrid())
-    m9h = ModelSetup(a,b,c,Le,b0_2_6, "ellipse8", 7, Hybrid())
+    m3h = ModelSetup(a,b,c,Le,b0f, "ellipse_uni3", 3, Hybrid())
+    m4h = ModelSetup(a,b,c,Le,b0f, "ellipse_uni5", 5, Hybrid())
+    m5h = ModelSetup(a,b,c,Le,b0_2_6, "ellipse_b265", 5, Hybrid())
+    m6h = ModelSetup(a,b,c,Le,b0Af, "ellipse_aform5", 5, Hybrid())
+    m7h = ModelSetup(a,b,c,Le,b0Af, "ellipse_aform3", 3, Hybrid())
+    m8h = ModelSetup(a,b,c,Le,b0Af, "ellipse_aform7", 7, Hybrid())
+    m9h = ModelSetup(a,b,c,Le,b0_2_6, "ellipse_b267", 7, Hybrid())
+    m10h = ModelSetup(a,b,c,Le,b0_2_9, "ellipse_b295", 5, Hybrid())
+    m11h = ModelSetup(a,b,c,Le,b0_2_9, "ellipse_b297", 7, Hybrid())
 
-    mshybrid = [m1h,m2h,m3h,m4h,m5h,m6h,m7h,m8h]
+    mshybrid = [m1h,m2h,m3h,m4h,m5h,m6h,m7h,m8h,m9h,m10h,m11h]
 
     ## 3D models
 
-    m1 = ModelSetup(df641,df641,df641,Le, b0_1_3,"malkussphere",3, Full())
+    m1 = ModelSetup(one(a),one(b),one(c),Le, b0_1_3,"malkussphere",3, Full())
     m2 = ModelSetup(a,b,c,Le, b0_1_3,"malkusellipse",3, Full())
-    m3 = ModelSetup(a,b,c,Le,b0f, "ellipse1", 3, Full())
-    m4 = ModelSetup(a,b,c,Le,b0f, "ellipse2", 5, Full())
-    m5 = ModelSetup(a,b,c,Le,b0_2_6, "ellipse3", 5, Full())
-    m6 = ModelSetup(a,b,c,Le,b0Af, "ellipse4", 5, Full())
+    m3 = ModelSetup(a,b,c,Le,b0f, "ellipse_uni3", 3, Full())
+    m4 = ModelSetup(a,b,c,Le,b0f, "ellipse_uni5", 5, Full())
+    m5 = ModelSetup(a,b,c,Le,b0_2_6, "ellipse_b265", 5, Full())
+    m6 = ModelSetup(a,b,c,Le,b0Af, "ellipse_aform5", 5, Full())
 
     msfull = [m1,m2,m3,m4,m5,m6]
 

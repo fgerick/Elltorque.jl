@@ -8,6 +8,7 @@ nb = parse(Int,ARGS[3])
 bmax = parse(Double64,ARGS[4])
 imagfield = parse(Int,ARGS[5])
 modeldim = parse(Int,ARGS[6])
+Le = parse(Double64,ARGS[7])
 
 @everywhere begin
 
@@ -21,9 +22,9 @@ modeldim = parse(Int,ARGS[6])
     # c = df641
     # Le = df64"0.0009320333592119371"
 
-    a,b,c,Le = df641,df641,df641,df64"1e-4"
+    a,b,c,Le = df641,df641,df641,remotecall_fetch(()->Le,1)
 
-    b0f = (a,b,c)->b0_1_1(a,b,c)+b0_1_3(a,b,c)
+    b0u = (a,b,c)->b0_1_1(a,b,c)+b0_1_3(a,b,c)
     pAform = (x^0*y^0+x)/df64"3"
     b0Af = (a,b,c)-> b0_Aform(pAform,a,b,c)
 
@@ -32,21 +33,29 @@ modeldim = parse(Int,ARGS[6])
     MDIM = (imdim == 1) ? QG() : ((imdim == 2) ? Hybrid() : Full())
     IMAG = remotecall_fetch(()->imagfield,1)
     if IMAG == 1
-        m0 = ModelSetup(df641,df641,df641,Le, b0_1_3,"malkussphere", 3, MDIM)
+        b0f = b0_1_3
+        m0 = ModelSetup(df641,df641,df641,Le, b0f,"malkussphere", 3, MDIM)
     elseif IMAG == 2
-        m0 = ModelSetup(a,b,c,Le, b0_1_3, "malkusellipse", 3, MDIM)
+        b0f = b0_1_3
+        m0 = ModelSetup(a,b,c,Le, b0f, "malkusellipse", 3, MDIM)
     elseif IMAG == 3
+        b0f = b0u
         m0 = ModelSetup(a,b,c,Le,b0f, "ellipse1", 3, MDIM)
     elseif IMAG == 4
+        b0f = b0u
         m0 = ModelSetup(a,b,c,Le,b0f, "ellipse2", 5, MDIM)
     elseif IMAG == 5
-        m0 = ModelSetup(a,b,c,Le,b0_2_6, "b026_ellipse", 5, MDIM)
+        b0f = b0_2_6
+        m0 = ModelSetup(a,b,c,Le,b0f, "b026_ellipse", 5, MDIM)
     elseif IMAG == 6
-        m0 = ModelSetup(a,b,c,Le,b0Af, "aform_ellipse", 5, MDIM)
+        b0f = b0Af
+        m0 = ModelSetup(a,b,c,Le,b0f, "aform_ellipse", 5, MDIM)
     elseif IMAG == 7
-        m0 = ModelSetup(a,b,c,Le,b0Af, "aform_ellipse2", 7, MDIM)
+        b0f = b0Af
+        m0 = ModelSetup(a,b,c,Le,b0f, "aform_ellipse2", 7, MDIM)
     elseif IMAG == 8
-        m0 = ModelSetup(a,b,c,Le,b0_2_6, "b026_ellipse2", 7, MDIM)
+        b0f = b0_2_6
+        m0 = ModelSetup(a,b,c,Le,b0f, "b026_ellipse2", 7, MDIM)
     end
 
     T = Double64
@@ -60,7 +69,8 @@ end
     ϵ = ϵs[i]
     b = ((1 - ϵ)/(1 + ϵ))^(1//4)
     a = 1/b
-    b0 = b0Af(a,b,m0.c)
+    if IMAG ==
+    b0 = b0f(a,b,m0.c)
     m=ModelSetup{T,D}(a,b,m0.c,m0.Le,b0,"eps_$i",m0.N)
     Elltorque.calculatemodes(m,datapath,SAVEDATA,"df64")
 end
