@@ -1,9 +1,13 @@
 
 using Distributed
 addprocs(parse(Int,ARGS[1]))
+@show nprocs()
 datapath = ARGS[2]
 nle = parse(Int,ARGS[3])
-imagfield = parse(Int,ARGS[4])
+lemax = parse(Double64,ARGS[4])
+imagfield = parse(Int,ARGS[5])
+modeldim = parse(Int,ARGS[6])
+Le = parse(Double64,ARGS[7])
 
 @show nprocs()
 @everywhere using Elltorque, DoubleFloats
@@ -31,7 +35,9 @@ imagfield = parse(Int,ARGS[4])
     ## 3D models
 
     ## 3D models
+    MDIM = (imdim == 1) ? QG() : ((imdim == 2) ? Hybrid() : Full())
     IMAG = remotecall_fetch(()->imagfield,1)
+
     if IMAG==1
         m0 = ModelSetup(df641,df641,df641,Le, b0_1_3,"malkussphere",3, Full())
     elseif IMAG==2
@@ -44,8 +50,12 @@ imagfield = parse(Int,ARGS[4])
         m0 = ModelSetup(a,b,c,Le,b0_2_6, "ellipse3", 5, Full())
     elseif IMAG==6
         m0 = ModelSetup(a,b,c,Le,b0Af, "ellipse4", 5, Full())
-    elseif IMAG=7
-        m0 = ModelSetup(1.0,1.0,1.0,le, (a,b,c)->b0_1_3(a,b,c)+b0_1_1(a,b,c)/10,"sphere_fb1",5, Full())
+    elseif IMAG == 7
+        b0f = b0Af
+        m0 = ModelSetup(a,b,c,Le,b0f, "aform_ellipse2", 7, MDIM)
+    elseif IMAG == 10
+        b0f = b0_2_8
+        m0 = ModelSetup(a,b,c,Le,b0f, "b028_ellipse", 9, MDIM)
     end
 
     T=Double64
