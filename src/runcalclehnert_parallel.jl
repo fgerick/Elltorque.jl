@@ -44,6 +44,8 @@ imagfield = parse(Int,ARGS[4])
         m0 = ModelSetup(a,b,c,Le,b0_2_6, "ellipse3", 5, Full())
     elseif IMAG==6
         m0 = ModelSetup(a,b,c,Le,b0Af, "ellipse4", 5, Full())
+    elseif IMAG=7
+        m0 = ModelSetup(1.0,1.0,1.0,le, (a,b,c)->b0_1_3(a,b,c)+b0_1_1(a,b,c)/10,"sphere_fb1",5, Full())
     end
 
     T=Double64

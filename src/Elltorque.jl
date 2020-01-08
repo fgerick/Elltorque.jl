@@ -74,7 +74,8 @@ include("track_malkus.jl")
 
 
 export ModelSetup, ModelDim, Full, Hybrid, QG, calculatemodes, split_ug_ua,
-       torquebalance, loadandcalculatetorque, runcalculations
+       torquebalance, loadandcalculatetorque, runcalculations,tracking_lehnert,
+       tracking_ellipt
 
 export b0_1_1,b0_1_2,b0_1_3,b0_2_6,b0_2_7,b0_2_8,b0_2_9,b0_3_6, b0_Aform
 

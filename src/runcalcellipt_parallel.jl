@@ -59,7 +59,9 @@ Le = parse(Double64,ARGS[7])
     elseif IMAG == 9
         b0f = b0_2_8
         m0 = ModelSetup(a,b,c,Le,b0f, "b028_ellipse", 7, MDIM)
-
+    elseif IMAG == 10
+        b0f = b0_2_8
+        m0 = ModelSetup(a,b,c,Le,b0f, "b028_ellipse", 9, MDIM)
     end
 
     T = Double64
@@ -67,6 +69,7 @@ Le = parse(Double64,ARGS[7])
     # bs = df64"10.0".^range(0,log10.(remotecall_fetch(()->bmax,1)),length=remotecall_fetch(()->nb,1))
     # bs = range(df641,remotecall_fetch(()->bmax,1),length=remotecall_fetch(()->nb,1))
     ϵs = df64"10.0".^range(-7,log10.(remotecall_fetch(()->bmax,1)),length=remotecall_fetch(()->nb,1))
+    ϵs = vcat([zero(Double64)],ϵs)
 end
 
 @time @sync @distributed for i=1:length(ϵs)

@@ -322,6 +322,94 @@ function tracking_ellipt(m::ModelSetup{T,D},ϵs,σ0,LHS0,RHS0,b0f; verbose=false
     return λs,us,ϵsout,vss
 end
 
+function tracking_lehnert(m::ModelSetup{T,D},les,σ0,LHS0,RHS0; verbose=false, corrtol=0.99, kwargs...) where {T<:Number,D<:ModelDim}
+    k=0
+    lesout=[les[1]]
+    λs,us = [],[]
+    target = σ0
+    targets = [σ0]
+    utarget = []
+    LHS = copy(LHS0)
+    RHS = copy(RHS0)
+
+    dle = les[1] #diff(les) # les[2]-les[1]
+    dlet = dle
+    le_t = les[1]
+    iter = 0
+    mpeakold = 0
+    a,b,c = m.a,m.b,m.c
+    N = m.N
+    cmat = cacheint(N,a,b,c)
+    if D==Full
+        vs = vel(N,a,b,c)
+    else
+        vs = Mire.qg_vel(N,a,b,c)
+    end
+
+    while lesout[end] + dle <= les[end]
+
+        if (k == 0 )
+            Le = les[1]
+        else
+            Le = lesout[end]+dle #dle[k+1]
+        end
+
+        if Le>le_t
+            Le = le_t
+        end
+        Ωvec = 1/Le*Mire.ez
+        #only coriolis force depends on Le:
+        Mire.projectforce!(view(RHS,1:length(vs),1:length(vs)),cmat,vs,vs,coriolis,Ωvec)
+
+        λ,u = eigstarget(Float64.(RHS), Float64.(LHS), target; v0=utarget, kwargs...)
+        nev = length(λ)
+        if k == 0
+            imax = 1
+            le_t = les[1] + dle
+        else
+            corrs = [abs(cor(u[:,i]/mean(u[:,i]),utarget/mean(utarget))) for i=1:nev]
+            # corsort=sortperm(abs.(corrs),rev=true)
+            # cors=corrs[corsort]
+            max_corr,imax = findmax(corrs)
+            if abs(corrs[imax]) < corrtol #if no correlating eigenvector is found the parameter stepping is too high
+                if verbose
+                    @warn "Correlation is only $(abs(corrs[imax]))!, lowering step"
+                flush(stdout)
+                flush(stderr)
+                end
+                dlet /= 2
+                le_t = lesout[end] + dlet
+                continue
+            else
+                push!(lesout,Le)
+                dle = 2*(lesout[end]-lesout[end-1])
+                le_t = lesout[end] + dle #dle[k+1]
+                dlet = dle #[k+1]
+            end
+        end
+
+        push!(λs,λ[imax])
+        push!(us,u[:,imax])
+        target = λ[imax]
+        utarget= u[:,imax]
+
+        if verbose
+            ω=abs(target)
+            @show ω
+
+            flush(stdout)
+            flush(stderr)
+        end
+        push!(targets,target)
+        k+=1
+        if verbose
+            @show Le
+            flush(stdout)
+            flush(stderr)
+        end
+    end
+    return λs,us,lesout
+end
 
 
 function tracking_lehnert_3d(N,a,b,c,les,σ0,LHS0,RHS0,cmat, vs; verbose=false, kwargs...)
@@ -583,23 +671,24 @@ function runcalculations(a,b,c,Le,SAVEDATA,datapath)
     m13h = ModelSetup(a,b,c,Le,b0Af2, "ellipse_a2form5", 5, Hybrid())
     m14h = ModelSetup(a,b,c,Le,b0_2_7, "ellipse_b277", 7, Hybrid())
     m15h = ModelSetup(a,b,c,Le,b0_3_6, "ellipse_b365", 5, Hybrid())
-    m15h = ModelSetup(a,b,c,Le,b0_2_8, "ellipse_b285", 5, Hybrid())
-    m16h = ModelSetup(a,b,c,Le,b0_1_1, "ellipse_unix5", 5, Hybrid())
+    m16h = ModelSetup(a,b,c,Le,b0_2_8, "ellipse_b285", 5, Hybrid())
+    m17h = ModelSetup(a,b,c,Le,b0_1_1, "ellipse_unix5", 5, Hybrid())
+    m18h = ModelSetup(a,b,c,Le,b0_2_8, "ellipse_b287", 7, Hybrid())
 
     mshybrid = [m1h,m2h,m3h,m4h,m5h,m6h,m7h,m8h,m9h,m10h,m11h,m12h]
 
     ## 3D models
 
-    m1 = ModelSetup(one(a),one(b),one(c),Le, b0_1_3,"malkussphere",3, Full())
-    m2 = ModelSetup(a,b,c,Le, b0_1_3,"malkusellipse",3, Full())
-    m3 = ModelSetup(a,b,c,Le,b0f, "ellipse_uni3", 3, Full())
-    m4 = ModelSetup(a,b,c,Le,b0f, "ellipse_uni5", 5, Full())
-    m5 = ModelSetup(a,b,c,Le,b0_2_6, "ellipse_b265", 5, Full())
-    m6 = ModelSetup(a,b,c,Le,b0Af, "ellipse_aform5", 5, Full())
+    # m1 = ModelSetup(one(a),one(b),one(c),Le, b0_1_3,"malkussphere",3, Full())
+    # m2 = ModelSetup(a,b,c,Le, b0_1_3,"malkusellipse",3, Full())
+    # m3 = ModelSetup(a,b,c,Le,b0f, "ellipse_uni3", 3, Full())
+    # m4 = ModelSetup(a,b,c,Le,b0f, "ellipse_uni5", 5, Full())
+    # m5 = ModelSetup(a,b,c,Le,b0_2_6, "ellipse_b265", 5, Full())
+    # m6 = ModelSetup(a,b,c,Le,b0Af, "ellipse_aform5", 5, Full())
+    #
+    # msfull = [m1,m2,m3,m4,m5,m6]
 
-    msfull = [m1,m2,m3,m4,m5,m6]
-
-    mall = vcat(msqg,mshybrid,msfull)
+    mall = vcat(msqg,mshybrid) #,msfull)
 
     # for m in mall
     #     calculatemodes(m,datapath,SAVEDATA,"df64")
