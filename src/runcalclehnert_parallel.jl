@@ -7,7 +7,7 @@ nle = parse(Int,ARGS[3])
 lemax = parse(Double64,ARGS[4])
 imagfield = parse(Int,ARGS[5])
 modeldim = parse(Int,ARGS[6])
-Le = parse(Double64,ARGS[7])
+# Le = parse(Double64,ARGS[7])
 
 @show nprocs()
 @everywhere using Elltorque, DoubleFloats
@@ -32,9 +32,7 @@ Le = parse(Double64,ARGS[7])
     b0Af = (a,b,c)-> b0_Aform(pAform,a,b,c)
 
 
-    ## 3D models
-
-    ## 3D models
+    imdim = remotecall_fetch(()->modeldim,1)
     MDIM = (imdim == 1) ? QG() : ((imdim == 2) ? Hybrid() : Full())
     IMAG = remotecall_fetch(()->imagfield,1)
 
