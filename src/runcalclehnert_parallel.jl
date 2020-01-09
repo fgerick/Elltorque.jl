@@ -55,7 +55,7 @@ modeldim = parse(Int,ARGS[6])
 
     T=Double64
     D=typeof(MDIM)
-    Les=10.0.^(-10.0.^range(log10.(7),0.0,length=remotecall_fetch(()->nle, 1) ))
+    Les=df64"10.0".^range(-7,0,length=remotecall_fetch(()->nle, 1) )
     # Les=10.0.^range(-7,-1,length=remotecall_fetch(()->nle,1))
 end
 

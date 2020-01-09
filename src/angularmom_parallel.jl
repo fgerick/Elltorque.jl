@@ -59,7 +59,7 @@ modeldim = parse(Int,ARGS[6])
     T=Double64
     D=typeof(MDIM)
     dtypename="df64"
-    Les=10.0.^(-10.0.^range(log10.(7),0.0,length=remotecall_fetch(()->nle, 1) ))
+    Les=10.0.^range(-7,0,length=remotecall_fetch(()->nle, 1) )
     # Les=10.0.^range(-7,-1,length=remotecall_fetch(()->nle,1))
     cmat = Mire.cacheint(m0.N,m0.a,m0.b,m0.c)
 end
@@ -78,5 +78,5 @@ end
     end
     Ls = [Elltorque.angularmom(u,cmat,3) for u in us]
     fnameL = joinpath(datapath,"L_"*string(D)*"_$(m.name)_"*dtypename*"_N$(m.N).jld")
-    JLD2.@save fnameL Ls
+    JLD2.@save fnameL Ls Les
 end
