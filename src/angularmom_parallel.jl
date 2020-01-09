@@ -1,6 +1,7 @@
 
 using Distributed
 addprocs(parse(Int,ARGS[1]))
+@everywhere using Elltorque, DoubleFloats
 @show nprocs()
 datapath = ARGS[2]
 nle = parse(Int,ARGS[3])
@@ -10,7 +11,6 @@ modeldim = parse(Int,ARGS[6])
 # Le = parse(Double64,ARGS[7])
 
 @show nprocs()
-@everywhere using Elltorque, DoubleFloats
 
 
 @everywhere begin
