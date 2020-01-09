@@ -104,23 +104,23 @@ function univortangmom(m::ModelSetup{T,D},datapath=""; dtypename = "df64") where
     return L, us_uni
 end
 
-#
-# function loadandcalculatetorque(m::ModelSetup{T,D}, datapath="", SAVEDATA=false,dtypename="f64") where {T <: Real,D <: ModelDim}
-#     # @everywhere begin
-#     fname = joinpath(datapath,string(D)*"_$(m.name)_"*dtypename*"_N$(m.N).jld")
-#     JLD2.@load fname A B S ω evecs m Ω us bs
-#
-#     ugua = split_ug_ua.(us,m.a,m.b,m.c)
-#     ug,ua = getindex.(ugua,1), getindex.(ugua,2)
-#     # end
-#     Γp, Γptot, Γpmag, Lω, Lωa, Γem, Γcor, Γpageo = torquebalance(m.N,m.a,m.b,m.c,us,ug,ua,bs,ω,m.b0,Ω)
-#     if SAVEDATA
-#         fname = joinpath(datapath,"torquebalance_"*string(D)*"_$(m.name)_"*dtypename*"_N$(m.N).jld")
-#         JLD2.@save fname Γp Γptot Γpmag Lω Lωa Γem Γcor Γpageo
-#     end
-#     return true
-# end
-#
+
+function loadandcalculatetorque(m::ModelSetup{T,D}, datapath="", SAVEDATA=false,dtypename="f64") where {T <: Real,D <: ModelDim}
+    # @everywhere begin
+    fname = joinpath(datapath,string(D)*"_$(m.name)_"*dtypename*"_N$(m.N).jld")
+    JLD2.@load fname A B S ω evecs m Ω us bs
+
+    ugua = split_ug_ua.(us,m.a,m.b,m.c)
+    ug,ua = getindex.(ugua,1), getindex.(ugua,2)
+    # end
+    Γp, Γptot, Γpmag, Lω, Γem, Γcor = torquebalance(m.N,m.a,m.b,m.c,us,ug,ua,bs,ω,m.b0,Ω)
+    if SAVEDATA
+        fname = joinpath(datapath,"torquebalance_"*string(D)*"_$(m.name)_"*dtypename*"_N$(m.N).jld")
+        JLD2.@save fname Γp Γptot Γpmag Lω Γem Γcor
+    end
+    return true
+end
+
 # function loadandcalculatetorquethread(mutex, m::ModelSetup{T,D}, datapath="", SAVEDATA=false,dtypename="f64") where {T <: Real,D <: ModelDim}
 #     # @everywhere begin
 #     fname = joinpath(datapath,string(D)*"_$(m.name)_"*dtypename*"_N$(m.N).jld")
