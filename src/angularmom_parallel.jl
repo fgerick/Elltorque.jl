@@ -2,13 +2,16 @@
 using Distributed
 addprocs(parse(Int,ARGS[1]))
 @show nprocs()
-@everywhere using Elltorque, DoubleFloats
 datapath = ARGS[2]
 nle = parse(Int,ARGS[3])
 lemax = parse(Double64,ARGS[4])
 imagfield = parse(Int,ARGS[5])
 modeldim = parse(Int,ARGS[6])
 # Le = parse(Double64,ARGS[7])
+
+@show nprocs()
+@everywhere using Elltorque, DoubleFloats
+
 
 @everywhere begin
 
@@ -55,12 +58,25 @@ modeldim = parse(Int,ARGS[6])
 
     T=Double64
     D=typeof(MDIM)
+    dtypename="df64"
     Les=10.0.^(-10.0.^range(log10.(7),0.0,length=remotecall_fetch(()->nle, 1) ))
     # Les=10.0.^range(-7,-1,length=remotecall_fetch(()->nle,1))
+    cmat = Mire.cacheint(m0.N,m0.a,m0.b,m0.c)
 end
 
 @time @sync @distributed for i=1:length(Les)
 
     m=ModelSetup{T,D}(m0.a,m0.b,m0.c,Les[i],m0.b0,"le_$i",m0.N)
-    Elltorque.calculatemodes(m,datapath,SAVEDATA,"df64")
+    # Elltorque.calculatemodes(m,datapath,SAVEDATA,"df64")
+    fname = joinpath(datapath,string(D)*"_$(m.name)_"*dtypename*"_N$(m.N).jld")
+    if D == Full
+        JLD2.@load fname A B vs S ω evecs m Ω us bs
+    elseif D == Hybrid
+        JLD2.@load fname A B vs vs_qg S ω evecs m Ω us bs
+    elseif D == QG
+        JLD2.@load fname A B vs_qg S ω evecs m Ω us bs
+    end
+    Ls = [Elltorque.angularmom(u,cmat,3) for u in us]
+    fnameL = joinpath(datapath,"L_"*string(D)*"_$(m.name)_"*dtypename*"_N$(m.N).jld")
+    JLD2.@save fnameL Ls
 end
