@@ -1,7 +1,7 @@
 
 using Distributed
 addprocs(parse(Int,ARGS[1]))
-@everywhere using Elltorque, DoubleFloats
+@everywhere using Elltorque, DoubleFloats, JLD2
 @show nprocs()
 datapath = ARGS[2]
 nle = parse(Int,ARGS[3])
