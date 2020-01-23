@@ -507,7 +507,7 @@ function eigen2(A,B; kwargs...)
 end
 
 
-function calculatemodes(m::ModelSetup{T,D},datapath="",SAVEDATA=false,dtypename="f64") where {T,D <: ModelDim}
+function calculatemodes(m::ModelSetup{T,D},datapath="",SAVEDATA=false,dtypename="f64";ekin=false) where {T,D <: ModelDim}
     a, b, c, Le, b0, N = m.a, m.b, m.c, m.Le, m.b0, m.N
     Ω = [0,0,1/Le]
 
@@ -535,11 +535,11 @@ function calculatemodes(m::ModelSetup{T,D},datapath="",SAVEDATA=false,dtypename=
     evecs = eigvecs(S)
 
     if D == Full
-        us, bs = get_ub(evecs, vs, cmat)
+        us, bs = get_ub(evecs, vs, cmat, ekin=ekin)
     elseif D == Hybrid
-        us, bs = get_ub(evecs, vs, vs_qg, cmat)
+        us, bs = get_ub(evecs, vs, vs_qg, cmat, ekin=ekin)
     elseif D == QG
-        us, bs = get_ub(evecs, vs_qg, cmat)
+        us, bs = get_ub(evecs, vs_qg, cmat, ekin=ekin)
     end
     if SAVEDATA
         fname = joinpath(datapath,string(D)*"_$(m.name)_"*dtypename*"_N$(m.N).jld")
