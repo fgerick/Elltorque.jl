@@ -322,6 +322,111 @@ function tracking_ellipt(m::ModelSetup{T,D},ϵs,σ0,LHS0,RHS0,b0f; verbose=false
     return λs,us,ϵsout,vss
 end
 
+function tracking_ellipt_reverse(m::ModelSetup{T,D},ϵ0,dϵ,σ0,LHS0,RHS0,b0f; verbose=false, kwargs...) where {T<:Number,D<:ModelDim}
+    N,a,c,Le = m.N,m.a,m.c,m.Le
+    Ω = [0,0,1/Le]
+    k = 0
+    ϵsout = [ϵ0]
+    λs,us = [],[]
+    target = σ0
+    targets = [σ0]
+    utarget = [] #initial guess eigenvector
+    LHS = copy(LHS0)
+    RHS = copy(RHS0)
+    vss,cmats = [],[]
+
+    # dϵ = ϵs[2]-ϵs[1]
+    dϵt = dϵ
+    ϵt = ϵ0
+    iter = 0
+
+    while ϵsout[end] > eps()
+
+        if (k == 0 )
+            ϵ = ϵ0
+        else
+            ϵ = ϵsout[end]-dϵ
+        end
+
+        if ϵ < ϵt
+            ϵ = ϵt
+        end
+
+        if ϵ <= 0.0
+            ϵ = 0.0
+        end
+
+        b = ((1 - ϵ)/(1 + ϵ))^(1//4)
+        a = 1/b
+        # cmat = Mire.cacheint(N,a,b,c)
+        b0 = b0f(a,b,c) #B0_malkus(a,b).+α*B0_x(a,b,c);
+        cmat = cacheint(N,a,b,c)
+        if D==Full
+            LHS, RHS, vs = Mire.assemblemhd(N, a, b, c, Ω, b0, cmat=cmat)
+        elseif D==Hybrid
+            LHS, RHS, vs, vs_qg = Mire.assemblemhd_hybrid(N, N, a, b, c, Ω, b0, cmat=cmat)
+        elseif D==QG
+            LHS, RHS, vs = Mire.assemblemhd_qg(N, a, b, c, Ω, b0, cmat=cmat)
+        else
+            error("model must be one of: Full, Hybrid or QG!")
+        end
+
+
+
+        # λ,u = eigstarget(RHS, LHS, target; v0 = utarget, kwargs...)
+        λ,u = eigstarget(Float64.(RHS), Float64.(LHS), target; v0=utarget, kwargs...)
+        nev = length(λ)
+
+        # find correlating eigenvector:
+        if k == 0
+            imax = 1
+            ϵt = ϵ0 - dϵ
+        else
+            corrs = abs.([cor(real.(u[:,i]/mean(u[:,i])),real.(utarget/mean(utarget))) for i=1:nev])
+            corsort=sortperm(abs.(corrs),rev=true)
+            cors=corrs[corsort[1:nev]]
+            max_corr,imax = findmin(abs.(1.0 .- corrs))
+            if corrs[imax] < 0.99 #if no correlating eigenvector is found the parameter stepping is too high
+               if verbose
+                    @warn "Correlation is only $(corrs[imax])!, lowering step"
+                end
+                dϵt /= 2
+                ϵt = ϵsout[end] - dϵt
+                flush(stdout)
+                flush(stderr)
+                continue
+            else
+                push!(ϵsout,ϵ)
+                dϵ = 1.2*abs(ϵsout[end-1]-ϵsout[end])
+                dϵ = (dϵ > ϵsout[end]/2) ? ϵsout[end]/2 : dϵ
+                ϵt = ϵsout[end] - dϵ
+                dϵt = dϵ
+            end
+        end
+
+        push!(λs,λ[imax])
+        push!(us,u[:,imax])
+        push!(cmats,cmat)
+        if D==Full || D==QG
+            push!(vss,vs)
+        else
+            push!(vss,(vs,vs_qg))
+        end
+        target = λ[imax]
+        utarget = u[:,imax]
+        if verbose
+            @show ϵ
+            ω = abs(target)
+            @show ω
+            flush(stdout)
+            flush(stderr)
+        end
+        push!(targets,target)
+        k+=1
+    end
+    return λs,us,ϵsout,vss,cmats
+end
+
 function tracking_lehnert(m::ModelSetup{T,D},les,σ0,LHS0,RHS0; verbose=false, corrtol=0.99, kwargs...) where {T<:Number,D<:ModelDim}
     k=0
     lesout=[les[1]]
@@ -361,13 +466,13 @@ function tracking_lehnert(m::ModelSetup{T,D},les,σ0,LHS0,RHS0; verbose=false, c
         #only coriolis force depends on Le:
         Mire.projectforce!(view(RHS,1:length(vs),1:length(vs)),cmat,vs,vs,coriolis,Ωvec)
 
-        λ,u = eigstarget(Float64.(RHS), Float64.(LHS), target; v0=utarget, kwargs...)
+        λ,u = Elltorque.eigstarget(Float64.(RHS), Float64.(LHS), target; v0=utarget, kwargs...)
         nev = length(λ)
         if k == 0
             imax = 1
             le_t = les[1] + dle
         else
-            corrs = [abs(cor(u[:,i]/mean(u[:,i]),utarget/mean(utarget))) for i=1:nev]
+            corrs = [abs(cor(u[:,i],utarget)) for i=1:nev]
             # corsort=sortperm(abs.(corrs),rev=true)
             # cors=corrs[corsort]
             max_corr,imax = findmax(corrs)
