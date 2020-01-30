@@ -1,53 +1,72 @@
-function get_ub(evecs,vs,cmat; ekin=false)
-    nev=size(evecs,2)
-    us,bs=[],[]
-    for i=1:nev
-        # u = Mire.eigenvel(vs,evecs[1:end÷2,i]/mean(evecs[:,i]))
-        # b = Mire.eigenvel(vs,evecs[end÷2+1:end,i]/mean(evecs[:,i]))
-        u = Mire.eigenvel(vs,evecs[1:end÷2,i])#/mean(evecs[:,i]))
-        b = Mire.eigenvel(vs,evecs[end÷2+1:end,i])#/mean(evecs[:,i]))
-
-        energyu = Mire.inner_product(cmat,u,u)
-        energyb = Mire.inner_product(cmat,b,b)
-        if ekin
-            u = u/√energyu
-            b = b/√energyb
-        else
-            en = sqrt(energyu + energyb)
-            u = u/en
-            b = b/en
-        end
-        # energy = ekin ? sqrt(energyu) :
-        push!(us,u)
-        push!(bs,b)
-    end
-    return us,bs
-end
-
-function get_ub(evecs,vs,vs_qg,cmat; ekin=false)
-    nev=size(evecs,2)
+# function get_ub(evecs,vs,cmat; ekin=false)
+#     nev=size(evecs,2)
+#     us,bs=[],[]
+#     for i=1:nev
+#         # u = Mire.eigenvel(vs,evecs[1:end÷2,i]/mean(evecs[:,i]))
+#         # b = Mire.eigenvel(vs,evecs[end÷2+1:end,i]/mean(evecs[:,i]))
+#         u = Mire.eigenvel(vs,evecs[1:end÷2,i])#/mean(evecs[:,i]))
+#         b = Mire.eigenvel(vs,evecs[end÷2+1:end,i])#/mean(evecs[:,i]))
+#
+#         energyu = Mire.inner_product(cmat,u,u)
+#         energyb = Mire.inner_product(cmat,b,b)
+#         if ekin
+#             u = u/√energyu
+#             b = b/√energyb
+#         else
+#             en = sqrt(energyu + energyb)
+#             u = u/en
+#             b = b/en
+#         end
+#         # energy = ekin ? sqrt(energyu) :
+#         push!(us,u)
+#         push!(bs,b)
+#     end
+#     return us,bs
+# end
+function get_ub1(λs,vs,vs_qg,cmat; ekin=false, getenergies=false)
     nqg=length(vs_qg)
-    us,bs=[],[]
-    for i=1:nev
-        u = Mire.eigenvel(vs_qg,evecs[1:nqg,i])#/mean(evecs[:,i]))
-        b = Mire.eigenvel(vs,evecs[nqg+1:end,i])#/mean(evecs[:,i]))
-        energyu = Mire.inner_product(cmat,u,u)
-        energyb = Mire.inner_product(cmat,b,b)
-        if ekin
-            u = u/√energyu
-            b = b/√energyb
-        else
-            en = sqrt(energyu + energyb)
-            u = u/en
-            b = b/en
-        end
-        # energy = ekin ? sqrt(energyu) :
-        push!(us,u)
-        push!(bs,b)
+    u = Mire.eigenvel(vs_qg,λs[1:nqg])#/mean(evecs[:,i]))
+    b = Mire.eigenvel(vs,λs[nqg+1:end])#/mean(evecs[:,i]))
+    energyu = Mire.inner_product(cmat,u,u)
+    energyb = Mire.inner_product(cmat,b,b)
+    if ekin
+        u = u/√energyu
+        b = b/√energyb
+    else
+        en = sqrt(energyu + energyb)
+        u = u/en
+        b = b/en
     end
-    return us,bs
+    if getenergies
+        return u,b,energyu,energyb
+    else
+        return u,b
+    end
 end
 
+function get_ub(evecs,vs,vs_qg,cmat; ekin=false, getenergies=false)
+    nev = size(evecs,2)
+    nqg = length(vs_qg)
+    us,bs=[],[]
+    if getenergies
+        eks,ebs = [],[]
+    end
+    for i=1:nev
+        u,b,ek,eb = get_ub1(evecs[:,i],vs,vs_qg,cmat; ekin=ekin, getenergies=getenergies)
+        push!(us,u)
+        push!(bs,b)
+        push!(eks,ek)
+        push!(ebs,eb)
+    end
+
+    if getenergies
+        return us,bs,eks,ebs
+    else
+        return us,bs
+    end
+end
+
+get_ub(evecs,vs,cmat; kwargs...) = get_ub(evecs,vs,vs,cmat; kwargs...)
 
 function tracking_b_3d(N,a,bs,c,α,Le,s0,s1,σ0,LHS0,RHS0,cmat,b0f; verbose=false, kwargs...)
     k=0
@@ -427,7 +446,7 @@ function tracking_ellipt_reverse(m::ModelSetup{T,D},ϵ0,dϵ,σ0,LHS0,RHS0,b0f; v
     return λs,us,ϵsout,vss,cmats
 end
 
-function tracking_lehnert(m::ModelSetup{T,D},les,σ0,LHS0,RHS0; verbose=false, corrtol=0.99, kwargs...) where {T<:Number,D<:ModelDim}
+function tracking_lehnert(m::ModelSetup{T,D},les,σ0,LHS0,RHS0; verbose=false, corrtol=0.99, maxdlefac=100, kwargs...) where {T<:Number,D<:ModelDim}
     k=0
     lesout=[les[1]]
     λs,us = [],[]
@@ -437,7 +456,7 @@ function tracking_lehnert(m::ModelSetup{T,D},les,σ0,LHS0,RHS0; verbose=false, c
     LHS = copy(LHS0)
     RHS = copy(RHS0)
 
-    dle = les[1] #diff(les) # les[2]-les[1]
+    dle = les[1]/maxdlefac #diff(les) # les[2]-les[1]
     dlet = dle
     le_t = les[1]
     iter = 0
@@ -487,7 +506,10 @@ function tracking_lehnert(m::ModelSetup{T,D},les,σ0,LHS0,RHS0; verbose=false, c
                 continue
             else
                 push!(lesout,Le)
-                dle = 2*(lesout[end]-lesout[end-1])
+                dle = 2*abs(lesout[end]-lesout[end-1])
+                if dle > lesout[end]/maxdlefac
+                    dle = lesout[end]/maxdlefac
+                end
                 le_t = lesout[end] + dle #dle[k+1]
                 dlet = dle #[k+1]
             end
@@ -804,8 +826,6 @@ function runcalculations(a,b,c,Le,SAVEDATA,datapath)
     Threads.@threads for m in mall
         calculatemodesthread(mutex,m,datapath,SAVEDATA,"df64")
     end
-
-
 end
 
 
@@ -820,6 +840,4 @@ function runcalculationslehnert(m0::ModelSetup{T,D},Les,SAVEDATA,datapath) where
         m=ModelSetup{T,D}(m0.a,m0.b,m0.c,Les[i],m0.b0,"le_$i",m0.N)
         calculatemodesthread(mutex,m,datapath,SAVEDATA,"df64",false)
     end
-
-
 end
