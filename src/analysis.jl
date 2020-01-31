@@ -52,7 +52,11 @@ function get_ub(evecs,vs,vs_qg,cmat; ekin=false, getenergies=false)
         eks,ebs = [],[]
     end
     for i=1:nev
-        u,b,ek,eb = get_ub1(evecs[:,i],vs,vs_qg,cmat; ekin=ekin, getenergies=getenergies)
+        if getenergies
+            u,b,ek,eb = get_ub1(evecs[:,i],vs,vs_qg,cmat; ekin=ekin, getenergies=true)
+        else
+            u,b = get_ub1(evecs[:,i],vs,vs_qg,cmat; ekin=ekin, getenergies=false)
+        end
         push!(us,u)
         push!(bs,b)
         push!(eks,ek)
