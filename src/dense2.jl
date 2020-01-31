@@ -58,11 +58,11 @@ truncdegree = parse(Int,ARGS[6])
             error("model must be one of: Full, Hybrid or QG!")
     end
 
-    RHSt = copy(RHS)
     cmat = cacheint(N,a,b,c)
     invL = inv(Matrix(LHS))
-    ωs, us, bs, eks, ebs = [], [], [], [], []
+    # ωs, us, bs, eks, ebs = [], [], [], [], []
     @sync @distributed for i in 1:length(les)
+        RHSt = copy(RHS)
         Mire.projectforce!(view(RHSt,1:length(vs1),1:length(vs2)),cmat,vs1,vs2,coriolis,[0,0,1/les[i]])
         esol = eigen(Float64.(invL*RHSt))
         ωs = esol.values
