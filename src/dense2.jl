@@ -65,11 +65,11 @@ truncdegree = parse(Int,ARGS[6])
     @sync @distributed for i in 1:length(les)
         Mire.projectforce!(view(RHSt,1:length(vs1),1:length(vs2)),cmat,vs1,vs2,coriolis,[0,0,1/les[i]])
         esol = eigen(Float64.(invL*RHSt))
-
+        ωs = esol.values
         us,bs,eks,ebs = Elltorque.get_ub(esol.vectors,vs1,vs2,Float64.(cmat); ekin=false, getenergies=true)
         Ls = [Elltorque.angularmom(u,cmat,3) for u in us]
         fnameL = joinpath(datapath,"Lle_$(i)_"*string(D)*"_$(m.name)_"*dtypename*"_N$(m.N).jld")
-        JLD2.@save fnameL Ls les us bs eks ebs
+        JLD2.@save fnameL ωs Ls les us bs eks ebs
     end
 
 end
