@@ -346,7 +346,7 @@ function tracking_ellipt(m::ModelSetup{T,D},ϵs,σ0,LHS0,RHS0,b0f; verbose=false
     return λs,us,ϵsout,vss
 end
 
-function tracking_ellipt_reverse(m::ModelSetup{T,D},ϵ0,dϵ,σ0,LHS0,RHS0,b0f; verbose=false, kwargs...) where {T<:Number,D<:ModelDim}
+function tracking_ellipt_reverse(m::ModelSetup{T,D},ϵ0,dϵ,σ0,LHS0,RHS0,b0f; zerothresh=eps(), verbose=false, kwargs...) where {T<:Number,D<:ModelDim}
     N,a,c,Le = m.N,m.a,m.c,m.Le
     Ω = [0,0,1/Le]
     k = 0
@@ -364,7 +364,7 @@ function tracking_ellipt_reverse(m::ModelSetup{T,D},ϵ0,dϵ,σ0,LHS0,RHS0,b0f; v
     ϵt = ϵ0
     iter = 0
 
-    while ϵsout[end] > eps()
+    while ϵsout[end] > zerothresh
 
         if (k == 0 )
             ϵ = ϵ0
