@@ -90,18 +90,26 @@ function plot_velocity_meridional_y(a,c,v1; ngrid=50, kwargs...)
     PyPlot.axis("off");
 end
 
+df641 = one(Double64)
 
+a,b,c,Le = df64"1.25",df64"0.8",df641,df64"1e-5"
 
+b0f = (a,b,c)->b0_1_1(a,b,c)+b0_1_3(a,b,c)
+pAform = (x^0*y^0+x)/df64"3"
+pAform2 = y^0*x/df64"3"
 
+b0Af = (a,b,c)-> b0_Aform(pAform,a,b,c);
+
+mqg = ModelSetup(a,b,c,Le,b0Af, "ellipse_aform7", 7, QG())
+mhyb = ModelSetup(a,b,c,Le,b0_2_8, "ellipse_b289", 9, Hybrid());
 
 
 fname = joinpath(datapath,"QG_ellipse_aform7_df64_N7.jld")
-JLD2.@load fname ω us;
+JLD2.@load fname ω us
 
 ω[1e-2.<imag.(ω).<10]
 
-inds=reverse(eachindex(ω)[1e-2.<imag.(ω).<10])
-
+inds = reverse(eachindex(ω)[1e-2.<imag.(ω).<10])
 
 PyPlot.rc("text",usetex=true)
 

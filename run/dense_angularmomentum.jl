@@ -1,6 +1,6 @@
 
 
-datapathn11 = "../data/runlehnert_b0An11"
+datapathn11 = joinpath(ellpath,"data/runlehnert_b0An11")
 
 if CALCULATE
     #This calculation takes a lot of time if run in serial. We recommend using
