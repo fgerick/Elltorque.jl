@@ -2,8 +2,8 @@
 
 if CALCULATE
 
-    function torsion_2D(n,a,b,c,Ω,asymmfield,thresh_l,thresh_u; verbose=true)
-        LHS,RHS,vs_qg = Mire.assemblemhd_qg(n,a,b,c,Ω,b0)
+    function torsion_2D(n,a,b,c,Ω,asymmfield,thresh_l,thresh_u,cmat; verbose=true)
+        LHS,RHS,vs_qg = Mire.assemblemhd_qg(n,a,b,c,Ω,b0,cmat=cmat)
         esol = eigen(Matrix(inv(Matrix(LHS))*RHS));
         torsionals = eachindex(esol.values)[(thresh_l .< abs.(imag.(esol.values)) .< thresh_u)]
         if verbose
@@ -28,7 +28,7 @@ if CALCULATE
     b0 = b0_Aform((y^0+x)/df64"3",a,b,c)
     ns = 1:2:25
 
-    cmat = cacheint(ns[end],a,b,c)
+    cmat = cacheint(27,a,b,c)
     tmodesqg_df64 = [torsion_2D(N,a,b,c,Ω,b0,1e-2,100.,cmat,verbose=VERBOSE) for N in ns]
     fname = joinpath(datapath,"qg_torsional_conversion.jld2")
     JLD2.@save fname tmodesqg_df64 ns

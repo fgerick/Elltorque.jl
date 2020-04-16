@@ -308,7 +308,6 @@ if CALCULATE
     fastest_slowmode = slowmodes[sortperm(abs.(slowmodes))[end]]
 
     les=10.0.^range(-6,-2,length=200);
-    @show length(TARGETS)
     λs1,us1,lesout1  = tracking_lehnert(m, les, TARGETS[1], LHS0, RHS0,nev=2,verbose=false)
     λs2,us2,lesout2 = tracking_lehnert(m, les, TARGETS[2], LHS0, RHS0,nev=2,verbose=false)
     λs3,us3,lesout3 = tracking_lehnert(m, les, TARGETS[3], LHS0, RHS0,nev=2,verbose=false)

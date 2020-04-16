@@ -69,14 +69,14 @@ a, b, c, Le, b0, N = m.a, m.b, m.c, m.Le, m.b0, m.N
 
 if CALCULATE
     @time LHS, RHS, vs = Mire.assemblemhd(N, a, b, c, Ω, b0);
-    @time ω,ek,eb = calculate_energyratio(msphere3d);
+    @time ω,ek,eb = calculate_energyratio(m);
     ωs,eks,ebs = [],[],[]
     les = 10.0.^range(-5,-1,length=50);
     for le in les
         println(le)
         flush(stdout)
-        msphere3d = ModelSetup(1.0,1.0,1.0,le, (a,b,c)->b0_1_3(a,b,c)+b0_1_1(a,b,c)/10,"sphere_fb1",5, Full())
-        ω,ek,eb = calculate_energyratio(msphere3d)
+        m = ModelSetup(1.0,1.0,1.0,le, (a,b,c)->b0_1_3(a,b,c)+b0_1_1(a,b,c)/10,"sphere_fb1",5, Full())
+        ω,ek,eb = calculate_energyratio(m)
         push!(ωs,ω)
         push!(eks,ek)
         push!(ebs,eb)

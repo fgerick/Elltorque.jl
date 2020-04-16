@@ -98,7 +98,6 @@ function run(calculate=false)
     println("convergence done.")
     include("torques.jl")
     println("torques done.")
-    close("all")
     include("dense_angularmomentum.jl")
     println("dense angular momentum done.")
     include("dense_sphere3d.jl")
@@ -115,6 +114,7 @@ function run(calculate=false)
     println("malkus done.")
     close("all")
     println("done.")
+    return true
 end
 
 function plot_scetch()

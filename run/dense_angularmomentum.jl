@@ -7,7 +7,7 @@ if CALCULATE
     #as many cores as available on one node, as the problem is embarissingly
     #parallel.
     np = 4 #number of cores
-    run(`julia densen11.jl $np $datapathn11`)
+    Base.run(`julia dense_n11.jl $np $datapathn11`)
 end
 
 function loadall(m0::ModelSetup{T,D},Les,datapath,dtypename="df64") where {T,D<:ModelDim}
