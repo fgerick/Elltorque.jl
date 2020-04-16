@@ -2,7 +2,7 @@ module Elltorque
 
 using Reexport, LinearAlgebra, Statistics, GenericSchur, DoubleFloats, JLD2,
       MultivariatePolynomials, TypedPolynomials, Distributed, LinearMaps,
-      Arpack, PyPlot
+      Arpack, PyPlot, Destruct, Printf
 @reexport using Mire
 
 
@@ -12,7 +12,6 @@ abstract type ModelDim; end
 struct Full <: ModelDim; end
 struct Hybrid <: ModelDim; end
 struct QG <: ModelDim; end
-
 
 struct ModelSetup{T <: Real, D <: ModelDim}
     a::T
@@ -66,11 +65,62 @@ include("misc.jl")
 
 include("analysis.jl")
 
-include("geosplit.jl")
-
 include("torques.jl")
 
 include("track_malkus.jl")
+
+"""
+    run(calculate=false)
+
+Produces all plots except the ellipsoid scetch (Figure 2). If calculate is set
+to `true` all data will be computed.
+
+"""
+function run(calculate=false)
+    if calculate
+        global CALCULATE = true
+    else
+        global CALCULATE = false
+    end
+    global VERBOSE = true
+    global SAVEFIGS = true
+    # ellpath = dirname(pathof(Elltorque))
+    global datapath = "../data/"
+    global figpath = "../figs/"
+
+    PyPlot.rc("text",usetex=true)
+
+    cd(joinpath(dirname(pathof(Elltorque)),"../run"))
+    # include("../src/Elltorque.jl")
+    @show pwd()
+    PyPlot.pygui(false)
+    include("convergence.jl")
+    println("convergence done.")
+    include("torques.jl")
+    println("torques done.")
+    close("all")
+    include("dense_angularmomentum.jl")
+    println("dense angular momentum done.")
+    include("dense_sphere3d.jl")
+    println("dense sphere done.")
+    include("ellipticity.jl")
+    println("ellipticity done.")
+    close("all")
+    include("lehnert.jl")
+    println("lehnert done.")
+    include("streamplots.jl")
+    println("streamplots done.")
+    close("all")
+    include("malkus.jl")
+    println("malkus done.")
+    close("all")
+    println("done.")
+end
+
+function plot_scetch()
+    cd(joinpath(dirname(pathof(Elltorque)),"../run"))
+    include("ellipse_scetch.jl")
+end
 
 
 export ModelSetup, ModelDim, Full, Hybrid, QG, calculatemodes, split_ug_ua,
@@ -78,5 +128,5 @@ export ModelSetup, ModelDim, Full, Hybrid, QG, calculatemodes, split_ug_ua,
        tracking_ellipt, tracking_ellipt_reverse
 
 export b0_1_1,b0_1_2,b0_1_3,b0_2_6,b0_2_7,b0_2_8,b0_2_9,b0_3_6, b0_Aform
-
+#
 end # module
