@@ -87,6 +87,11 @@ function run(calculate=false)
     ellpath = joinpath(dirname(pathof(Elltorque)),"..")
     runpath = joinpath(ellpath,"run")
     global datapath = joinpath(ellpath,"data/")
+    try
+        mkdir(datapath)
+    catch
+        
+    end
     global figpath = joinpath(ellpath,"figs/")
 
     PyPlot.rc("text",usetex=true)
