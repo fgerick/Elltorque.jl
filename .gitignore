@@ -2,6 +2,7 @@
 /dev/
 /docs/build/
 /docs/site/
+/src/deprecated/
 .sync-config.cson
 *.jld
 *.jld2
