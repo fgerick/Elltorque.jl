@@ -89,6 +89,7 @@ function run(calculate=false)
     global datapath = joinpath(ellpath,"data/")
     try
         mkdir(datapath)
+        mkdir(joinpath(datapath,"runlehnert_b0An11/"))
     catch
 
     end
@@ -97,10 +98,10 @@ function run(calculate=false)
     PyPlot.rc("text",usetex=true)
 
     PyPlot.pygui(false)
-    include(joinpath(runpath,"convergence.jl"))
-    println("convergence done.")
-    include(joinpath(runpath,"torques.jl"))
-    println("torques done.")
+    # include(joinpath(runpath,"convergence.jl"))
+    # println("convergence done.")
+    # include(joinpath(runpath,"torques.jl"))
+    # println("torques done.")
     include(joinpath(runpath,"dense_angularmomentum.jl"))
     println("dense angular momentum done.")
     include(joinpath(runpath,"dense_sphere3d.jl"))
