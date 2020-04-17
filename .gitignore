@@ -4,5 +4,6 @@
 /docs/site/
 /src/deprecated/
 .sync-config.cson
+.sync-config.cson2
 *.jld
 *.jld2

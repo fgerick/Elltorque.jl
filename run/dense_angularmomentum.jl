@@ -6,8 +6,11 @@ if CALCULATE
     #This calculation takes a lot of time if run in serial. We recommend using
     #as many cores as available on one node, as the problem is embarissingly
     #parallel.
-    np = 4 #number of cores
-    Base.run(`julia dense_n11.jl $np $datapathn11`)
+    # np = 4 #number of cores
+    # Base.run(`julia dense_n11.jl $np $datapathn11`)
+
+    #for serial travis-ci test we use:
+    include(joinpath(runpath,"dense_n11_serial.jl"))
 end
 
 function loadall(m0::ModelSetup{T,D},Les,datapath,dtypename="df64") where {T,D<:ModelDim}
