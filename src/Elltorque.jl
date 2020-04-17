@@ -2,7 +2,7 @@ module Elltorque
 
 using Reexport, LinearAlgebra, Statistics, GenericSchur, DoubleFloats, JLD2,
       MultivariatePolynomials, TypedPolynomials, Distributed, LinearMaps,
-      Arpack, PyPlot, Destruct, Printf
+      Arpack, PyPlot, Destruct, Printf, Latexify, Unitful
 @reexport using Mire
 
 
