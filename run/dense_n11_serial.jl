@@ -20,7 +20,7 @@ cmat = Mire.cacheint(m0.N,m0.a,m0.b,m0.c)
 for i=1:length(Les)
 
     m = ModelSetup{T,D}(m0.a,m0.b,m0.c,Les[i],m0.b0,"le_$i",m0.N)
-    Elltorque.calculatemodes(m,datapathn11,SAVEDATA,dtypename)
+    Elltorque.calculatemodes(m,datapathn11,true,dtypename)
     fname = joinpath(datapathn11,string(D)*"_$(m.name)_"*dtypename*"_N$(m.N).jld")
     JLD2.@load fname A B vs_qg S ω evecs m Ω us bs
     Ls = [Elltorque.angularmom(u,cmat,3) for u in us]
