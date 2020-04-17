@@ -90,17 +90,13 @@ function run(calculate=false)
     try
         mkdir(datapath)
     catch
-        
+
     end
     global figpath = joinpath(ellpath,"figs/")
 
     PyPlot.rc("text",usetex=true)
 
-    # cd(joinpath(dirname(pathof(Elltorque)),"../run"))
-    # include("../src/Elltorque.jl")
-    # @show pwd()
     PyPlot.pygui(false)
-    @show joinpath(runpath,"convergence.jl")
     include(joinpath(runpath,"convergence.jl"))
     println("convergence done.")
     include(joinpath(runpath,"torques.jl"))
