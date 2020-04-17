@@ -10,8 +10,15 @@ addons:
   apt:
     packages:
       - texlive-full
-      - python-matplotlib
-      - python3-matplotlib
+      - python3-pip
+      - python-pip
+install:
+  - pip install --user --upgrade pip setuptools
+  - pip3 install --user --upgrade pip setuptools
+  - pip3 install matplotlib
+  - pip3 install --upgrade matplotlib
+  - pip install matplotlib
+  - pip install --upgrade matplotlib
 # jobs:
 #   include:
 #     - stage: "Documentation"
