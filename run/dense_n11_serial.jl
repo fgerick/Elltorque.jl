@@ -1,4 +1,6 @@
-#calculates the data for Figure 12
+#calculates the data for Figure 12 in serial
+
+datapathn11 = joinpath(ellpath,"data/runlehnert_b0An11")
 nle = 200
 df641 = one(Double64)
 
@@ -18,11 +20,11 @@ cmat = Mire.cacheint(m0.N,m0.a,m0.b,m0.c)
 for i=1:length(Les)
 
     m = ModelSetup{T,D}(m0.a,m0.b,m0.c,Les[i],m0.b0,"le_$i",m0.N)
-    Elltorque.calculatemodes(m,datapath,SAVEDATA,dtypename)
-    fname = joinpath(datapath,string(D)*"_$(m.name)_"*dtypename*"_N$(m.N).jld")
+    Elltorque.calculatemodes(m,datapathn11,SAVEDATA,dtypename)
+    fname = joinpath(datapathn11,string(D)*"_$(m.name)_"*dtypename*"_N$(m.N).jld")
     JLD2.@load fname A B vs_qg S ω evecs m Ω us bs
     Ls = [Elltorque.angularmom(u,cmat,3) for u in us]
-    fnameL = joinpath(datapath,"L_"*string(D)*"_$(m.name)_"*dtypename*"_N$(m.N).jld")
+    fnameL = joinpath(datapathn11,"L_"*string(D)*"_$(m.name)_"*dtypename*"_N$(m.N).jld")
     JLD2.@save fnameL Ls Les
     println(i)
     flush(stdout)
