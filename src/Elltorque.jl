@@ -84,8 +84,8 @@ function run(calculate=false)
     end
     global VERBOSE = true
     global SAVEFIGS = true
-    ellpath = joinpath(dirname(pathof(Elltorque)),"..")
-    runpath = joinpath(ellpath,"run")
+    global ellpath = joinpath(dirname(pathof(Elltorque)),"..")
+    global runpath = joinpath(ellpath,"run")
     global datapath = joinpath(ellpath,"data/")
     try
         mkdir(datapath)
