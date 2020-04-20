@@ -1,2 +1,2 @@
 using Pkg
-Pkg.develop(PackageSpec(path=joinpath(@__DIR__)))
+Pkg.add(PackageSpec(path=joinpath(@__DIR__)))
