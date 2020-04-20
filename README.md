@@ -25,3 +25,6 @@ To run without calculating use
 ```julia
 Elltorque.run(false)
 ```
+
+## Citation
+If you use this software please cite the article [Pressure torque of torsional Alfvén modes acting on an ellipsoidal mantle](https://doi.org/10.1093/gji/ggaa166).
