@@ -4,7 +4,7 @@ Results and figures used in [Pressure torque of torsional Alfvén modes acting o
 
 ## Prerequisits
 
-Installed working texlive, python/python3 with matplotlib >v2.1 for support of latest colormaps. A working Julia >v1.0 without linked MKL library for Arpack.jl support.
+Installed working texlive, python/python3 with matplotlib >v2.1 for support of latest colormaps. A working Julia >v1.3.
 
 
 ## Install
