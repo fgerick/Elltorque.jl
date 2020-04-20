@@ -142,7 +142,6 @@ end
 fname = joinpath(datapath,"Hybrid_ellipse_b289_df64_N9.jld")
 JLD2.@load fname ω us;
 
-ω[1e-2.<imag.(ω).<10]
 
 inds=reverse(eachindex(ω)[1e-2.<imag.(ω).<10])
 for i in 1:3
@@ -157,7 +156,6 @@ for i in 1:3
 end
 
 
-# f,ax=subplots(3,figsize=(4,8))
 inds=reverse(eachindex(ω)[1e-2.<imag.(ω).<10])
 for i in 1:3
     f,ax=subplots(1,figsize=(3,2))

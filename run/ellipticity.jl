@@ -50,17 +50,15 @@ else
     JLD2.@load fname λs4 us4 ϵsout4 vss4 cmats4 v4 b4 L4 ek4 eb4
 end
 
-
+#Figure 8
 
 PyPlot.rc("text",usetex=true)
-# PyPlot.rc("figure", dpi=600)
 f,ax = subplots(2,sharex=true,figsize=(3,3.5))
 
 ax[1].loglog(ϵsout1,abs.(λs1),"-")
 ax[1].loglog(ϵsout2,abs.(λs2),"-.")
 ax[1].loglog(ϵsout3,abs.(λs3),"--")
 ax[1].loglog(ϵsout4,abs.(λs4),":")
-# ax[1].loglog(ϵs,sqrt.(ϵs),color="gray",linestyle="dotted")
 ax[1].annotate(L"\epsilon^{1/2}",(1e-3,5e-3))
 ax[1].set_ylabel(L"|\omega|")
 ax[1].set_ylim([1e-3,3])
@@ -84,12 +82,9 @@ if SAVEFIGS
 end
 
 
-clf()
-
-
+#Figure 10
 
 PyPlot.rc("text",usetex=true)
-# PyPlot.rc("figure", dpi=600)
 f,ax = subplots(2,sharex=true,figsize=(3,3.5))
 
 
@@ -121,8 +116,6 @@ if SAVEFIGS
     figname = joinpath(figpath,"inertialtorque_ellipticity_qg_a.pdf")
     savefig(figname, bbox_inches="tight");
 end
-
-clf()
 
 
 
@@ -167,18 +160,15 @@ else
     JLD2.@load fname λs4 us4 ϵsout4 vss4 cmats4 v4 b4 L4 ek4 eb4
 end
 
-
-clf()
+#Figure A3
 
 PyPlot.rc("text",usetex=true)
-# PyPlot.rc("figure", dpi=600)
 f,ax = subplots(2,sharex=true,figsize=(3,3.5))
 
 ax[1].loglog(ϵsout1,abs.(λs1),"-")
 ax[1].loglog(ϵsout2,abs.(λs2),"-.")
 ax[1].loglog(ϵsout3,abs.(λs3),"--")
 ax[1].loglog(ϵsout4,abs.(λs4),":")
-# ax[1].loglog(ϵs,sqrt.(ϵs),color="gray",linestyle="dotted")
 ax[1].annotate(L"\epsilon^{1/2}",(1e-3,5e-3))
 ax[1].set_ylabel(L"|\omega|")
 ax[1].set_ylim([1e-3,5])
@@ -201,44 +191,10 @@ if SAVEFIGS
     savefig(figname, bbox_inches="tight");
 end
 
-PyPlot.rc("text",usetex=true)
-# PyPlot.rc("figure", dpi=600)
-f,ax = subplots(2,sharex=true,figsize=(3,3.5))
 
-
-ax[1].loglog(ϵsout1,abs.(L1),"-")
-ax[1].loglog(ϵsout2,abs.(L2),"-.")
-ax[1].loglog(ϵsout3,abs.(L3),"--")
-ax[1].loglog(ϵsout4,abs.(L4),":")
-
-ax[1].annotate(L"\epsilon^{1/2}",(3e-5,7e-2))
-ax[1].annotate(L"\epsilon",(1e-2,8e-6))
-
-ax[1].set_ylabel(L"|L_z|")
-ax[1].set_ylim([1e-7,5])
-
-ax[2].loglog(ϵsout1,abs.(L1.*λs1),"-")
-ax[2].loglog(ϵsout2,abs.(L2.*λs2),"-.")
-ax[2].loglog(ϵsout3,abs.(L3.*λs3),"--")
-ax[2].loglog(ϵsout4,abs.(L4.*λs4),":")
-
-ax[2].annotate(L"\epsilon",(1e-2,8e-6))
-ax[2].set_ylabel(L"|\omega L_z|")
-
-ax[2].set_xlim([2e-5,eps0])
-ax[2].set_ylim([1e-7,1])
-
-ax[2].set_xlabel(L"\epsilon")
-
-if SAVEFIGS
-    figname = joinpath(figpath,"inertialtorque_ellipticity_hyb.pdf")
-    savefig(figname, bbox_inches="tight");
-end
-
-clf()
+# Figure A4
 
 PyPlot.rc("text",usetex=true)
-# PyPlot.rc("figure", dpi=600)
 f,ax = subplots(3,sharex=true,figsize=(3,5.25))
 
 
@@ -246,7 +202,6 @@ ax[1].loglog(ϵsout1,abs.(λs1),"-")
 ax[1].loglog(ϵsout2,abs.(λs2),"-.")
 ax[1].loglog(ϵsout3,abs.(λs3),"--")
 ax[1].loglog(ϵsout4,abs.(λs4),":")
-# ax[1].loglog(ϵs,sqrt.(ϵs),color="gray",linestyle="dotted")
 ax[1].annotate(L"\epsilon^{1/2}",(1e-3,5e-3))
 ax[1].set_ylabel(L"|\omega|")
 ax[1].set_ylim([1e-3,5])
@@ -280,5 +235,3 @@ if SAVEFIGS
     figname = joinpath(figpath,"inertialtorque_ellipticity_hyb.pdf")
     savefig(figname, bbox_inches="tight");
 end
-
-clf()

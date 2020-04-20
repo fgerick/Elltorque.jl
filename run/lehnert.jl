@@ -119,8 +119,9 @@ else
     JLD2.@load fname  λs1_ac us1_ac lesout1_ac λs2_ac us2_ac lesout2_ac v1_ac b1_ac ek1_ac eb1_ac v2_ac b2_ac ek2_ac eb2_ac
 end
 
+# Figure 7
+
 PyPlot.rc("text",usetex=true)
-# PyPlot.rc("figure", dpi=600)
 
 f,ax=subplots(2,sharex=true,sharey=true,figsize=(3,3.5), dpi=600)
 
@@ -162,9 +163,6 @@ cb2.set_label(L"E_\mathrm{kin}/E_\mathrm{mag}")
 
 
 
-# k = 1:30:length(lesout1)
-# k2 = 1:30:length(lesout5)
-
 
 #inset:
 axins = ax[1].inset_axes([0.1, 1.1, 0.8, 0.7])
@@ -202,15 +200,10 @@ end
 
 
 
-clf()
-
-
-
-
+#Figure 8
 
 
 PyPlot.rc("text",usetex=true)
-# PyPlot.rc("figure", dpi=600)
 f,ax = subplots(2,sharex=true,figsize=(3,3.5), dpi=600)
 
 alphaval = 0.15
@@ -224,7 +217,6 @@ ax[1].set_ylabel(L"|L_z|")
 
 per = sortperm(abs.(evalsall))
 clr=evalsall[per]
-# clr=(0.4,0.4,0.4)
 
 δω = 1/10
 δL = 1/2
@@ -295,6 +287,9 @@ if SAVEFIGS
     figname=joinpath(figpath,"inertialtorque_z_le_qg_aform.pdf")
     savefig(figname, bbox_inches="tight")
 end
+
+
+#Figure A4
 
 
 if CALCULATE
@@ -378,7 +373,6 @@ ax[1].set_ylabel(L"|L_z|")
 
 per = sortperm(abs.(evalsall))
 clr=evalsall[per]
-# clr=(0.4,0.4,0.4)
 
 δω = 1/10
 δL = 1/2

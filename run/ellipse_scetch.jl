@@ -1,3 +1,5 @@
+# Figure 2 (without labels). This requires working version of Luxor.jl.
+
 import Luxor.ellipse
 
 function ellipse(cpoint::Point, a,b, action=:none;

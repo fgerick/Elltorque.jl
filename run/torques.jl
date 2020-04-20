@@ -134,7 +134,7 @@ if SAVEFIGS
 end
 
 
-#Plots and numerical values for Earth like ellipticities:
+#Numerical values for Earth like ellipticities:
 
 
 ϵ = df64"1e-3"
@@ -240,5 +240,3 @@ end
 
 
 tm_values_all([mqg_ϵ,mhyb_ϵ],5e-6,3:-1:1,datapath)
-
-# tm_values_all([mqg_ϵ4],5e-6,3:-1:1,datapath)

@@ -83,7 +83,6 @@ function tracking_ellipt(m::ModelSetup{T,D},ϵs,σ0,LHS0,RHS0,b0f; verbose=false
         end
         b = ((1 - ϵ)/(1 + ϵ))^(1//4)
         a = 1/b
-        # cmat = Mire.cacheint(N,a,b,c)
         b0 = b0f(a,b,c) #B0_malkus(a,b).+α*B0_x(a,b,c);
         if D==Full
             LHS, RHS, vs = Mire.assemblemhd(N, a, b, c, Ω, b0)
@@ -97,7 +96,6 @@ function tracking_ellipt(m::ModelSetup{T,D},ϵs,σ0,LHS0,RHS0,b0f; verbose=false
 
 
 
-        # λ,u = eigstarget(RHS, LHS, target; v0 = utarget, kwargs...)
         λ,u = eigstarget(Float64.(RHS), Float64.(LHS), target; v0=utarget, kwargs...)
         nev = length(λ)
 
@@ -162,7 +160,6 @@ function tracking_ellipt_reverse(m::ModelSetup{T,D},ϵ0,dϵ,σ0,LHS0,RHS0,b0f; z
     RHS = copy(RHS0)
     vss,cmats = [],[]
 
-    # dϵ = ϵs[2]-ϵs[1]
     dϵt = dϵ
     ϵt = ϵ0
     iter = 0
@@ -185,7 +182,6 @@ function tracking_ellipt_reverse(m::ModelSetup{T,D},ϵ0,dϵ,σ0,LHS0,RHS0,b0f; z
 
         b = ((1 - ϵ)/(1 + ϵ))^(1//4)
         a = 1/b
-        # cmat = Mire.cacheint(N,a,b,c)
         b0 = b0f(a,b,c) #B0_malkus(a,b).+α*B0_x(a,b,c);
         cmat = cacheint(N,a,b,c)
         if D==Full
@@ -200,7 +196,6 @@ function tracking_ellipt_reverse(m::ModelSetup{T,D},ϵ0,dϵ,σ0,LHS0,RHS0,b0f; z
 
 
 
-        # λ,u = eigstarget(RHS, LHS, target; v0 = utarget, kwargs...)
         λ,u = eigstarget(Float64.(RHS), Float64.(LHS), target; v0=utarget, kwargs...)
         nev = length(λ)
 
@@ -300,8 +295,6 @@ function tracking_lehnert(m::ModelSetup{T,D},les,σ0,LHS0,RHS0; verbose=false, c
             le_t = les[1] + dle
         else
             corrs = [abs(cor(u[:,i],utarget)) for i=1:nev]
-            # corsort=sortperm(abs.(corrs),rev=true)
-            # cors=corrs[corsort]
             max_corr,imax = findmax(corrs)
             if abs(corrs[imax]) < corrtol #if no correlating eigenvector is found the parameter stepping is too high
                 if verbose

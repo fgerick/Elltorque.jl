@@ -98,7 +98,7 @@ ratios_all = abs.(eks_all)./abs.(ebs_all);
 perm = sortperm(ratios_all);
 
 
-#Plot Figure 1 in paper:
+#Figure 1
 
 PyPlot.rc("text",usetex=true)
 f,ax=subplots(1,figsize=(4,3), dpi=600)

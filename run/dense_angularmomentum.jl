@@ -53,7 +53,7 @@ les_all = vcat([ones(length(ωs[1]))*le for le in Les]...);
 
 
 
-#plotting:
+#Figure 12
 
 PyPlot.rc("text",usetex=true)
 figure(figsize=(4,3),dpi=600)
