@@ -1,2 +1,2 @@
 using Pkg
-Pkg.develop(PackageSpec(path="src/Elltorque.jl"))
+Pkg.develop(PackageSpec(path=joinpath(@__DIR__,"src/Elltorque.jl")))
