@@ -1,3 +1,3 @@
 using Pkg
 Pkg.add(PackageSpec(url="https://github.com/fgerick/Mire.jl.git"))
-Pkg.add(PackageSpec(path=joinpath(@__DIR__)))
+Pkg.dev(PackageSpec(path=joinpath(@__DIR__)))
