@@ -4,6 +4,14 @@ os:
   - linux
 julia:
   - 1.4
+env:
+  - GROUP=convergence
+  - GROUP=torques
+  - GROUP=ellipticity
+  - GROUP=lehnert
+  - GROUP=dense_amom
+  - GROUP=dense_sphere
+  - GROUP=malkus
 notifications:
   email: false
 addons:
@@ -11,14 +19,14 @@ addons:
     packages:
       - texlive-full
       - python3-pip
-      - python-pip
+      # - python-pip
 install:
-  - pip install --user --upgrade pip setuptools
+  # - pip install --user --upgrade pip setuptools
   - pip3 install --user --upgrade pip setuptools
   - pip3 install matplotlib
   - pip3 install --upgrade matplotlib
-  - pip install matplotlib
-  - pip install --upgrade matplotlib
+  # - pip install matplotlib
+  # - pip install --upgrade matplotlib
 # jobs:
 #   include:
 #     - stage: "Documentation"

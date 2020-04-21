@@ -135,3 +135,5 @@ C0=(31/255,119/255,180/255) #color
     poly(epoly3[[end÷4+1:end÷2;end÷2+1:3*end÷4]], :stroke,  close=false)
 
 end 420 360 "../figs/aligned_ellipsoid_trunc.pdf"
+
+true

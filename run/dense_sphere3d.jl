@@ -125,3 +125,5 @@ if SAVEFIGS
     figname=joinpath(figpath,"dense_sphere.pdf")
     savefig(figname,bbox_inches="tight")
 end
+
+true

@@ -74,3 +74,5 @@ if SAVEFIGS
     fname = joinpath(figpath,"dense_angularmom_n11.pdf")
     savefig(fname,bbox_inches="tight")
 end
+
+true

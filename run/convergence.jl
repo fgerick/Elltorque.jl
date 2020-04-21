@@ -66,4 +66,5 @@ if SAVEFIGS
     savefig(figname,bbox_inches="tight");
 end
 
-clf()
+
+true
