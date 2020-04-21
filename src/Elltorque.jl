@@ -129,7 +129,7 @@ end
 
 export ModelSetup, ModelDim, Full, Hybrid, QG, calculatemodes, split_ug_ua,
        torquebalance, loadandcalculatetorque, runcalculations,tracking_lehnert,
-       tracking_ellipt, tracking_ellipt_reverse, get_ub, get_ub1
+       tracking_ellipt, tracking_ellipt_reverse, get_ub, get_ub1, track_malkus
 
 export angularmom, mode2gradp, emtorque, hydropressuretorque, magpressuretorque,
         totalpressuretorque, coriolistorque
