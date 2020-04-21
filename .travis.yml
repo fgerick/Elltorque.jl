@@ -17,16 +17,19 @@ notifications:
 addons:
   apt:
     packages:
-      - texlive-full
+      - texlive
+      - texlive-latex-base
+      - texlive-latex-recommended
+      - texlive-pictures
+      - texlive-fonts-recommended
+      - texlive-latex-extra
+      - dvipng
+      - ghostscript-x
       - python3-pip
-      # - python-pip
 install:
-  # - pip install --user --upgrade pip setuptools
   - pip3 install --user --upgrade pip setuptools
   - pip3 install matplotlib
   - pip3 install --upgrade matplotlib
-  # - pip install matplotlib
-  # - pip install --upgrade matplotlib
 # jobs:
 #   include:
 #     - stage: "Documentation"
