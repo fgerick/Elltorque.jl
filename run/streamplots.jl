@@ -1,3 +1,4 @@
+#produce stream plots of torsional modes
 
 function grid(x,y)
     X = [i for j in y, i in x]

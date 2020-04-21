@@ -1,4 +1,6 @@
-r = [x,y,z]
+#functions to calculate the torques for a calulated mode
+
+r = [x,y,z] #position vector
 
 mode2gradp(u,b,b0,Ω,ω) = coriolis(u,Ω) + lorentz(b,b0) - ω*u
 mode2gradpmag(u,b,b0,Ω,ω) = coriolis(u,Ω) + Mire.advecterm(b,b0) + Mire.advecterm(b0,b) - ω*u
@@ -12,7 +14,8 @@ magpressuretorque(u,b,ω,b0,Ω,cmat, coordinate) = int_polynomial_ellipsoid((r �
 totalpressuretorque(u,b,ω,b0,Ω,cmat, coordinate) = int_polynomial_ellipsoid((r × mode2gradpmag(u,b,b0,Ω,ω))[coordinate],cmat)
 coriolistorque(u,Ω,cmat,coordinate) = int_polynomial_ellipsoid((r × coriolis(u,Ω))[coordinate],cmat)
 
-
+#get all torques for all velocities us and associated magnetic field perturbations bs
+#and other model setup properties (N,a,b,c,b0,Ω)
 function torquebalance(N,a::T,b::T,c::T,us,bs,ω,b0,Ω; takeuni=false) where T
     cmat = Mire.cacheint(N,a,b,c)*pi
     nm = length(us)
@@ -20,7 +23,7 @@ function torquebalance(N,a::T,b::T,c::T,us,bs,ω,b0,Ω; takeuni=false) where T
     Γpageo,Γptot,Γcor,Γpmag,Lω,Lωa,Γem = [deepcopy(Γp) for i=1:7]
     for i = 1:3
         for j = 1:nm
-            if takeuni
+            if takeuni #projecting onto the uniform vorticity components
                 u = projmode_uni(us[j],a,b,c,cmat, i)
             else
                 u = us[j]
@@ -38,6 +41,7 @@ function torquebalance(N,a::T,b::T,c::T,us,bs,ω,b0,Ω; takeuni=false) where T
     return Γp, Γptot, Γpmag, Lω, Γem, Γcor
 end
 
+# project a velocity u onto the i-th uniform vorticity component
 function projmode_uni(u,a,b,c,cmat, i) where {T <: Real, D <: ModelDim}
     if i==1
         vx = [0,z/c^2,-y/b^2].* x^0*y^0*z^0
@@ -58,7 +62,7 @@ function projmode_uni(u,a,b,c,cmat, i) where {T <: Real, D <: ModelDim}
 end
 
 
-
+#convenience function to calculate the torque balance.
 function loadandcalculatetorque(m::ModelSetup{T,D}, datapath="", SAVEDATA=false,dtypename="f64") where {T <: Real,D <: ModelDim}
     fname = joinpath(datapath,string(D)*"_$(m.name)_"*dtypename*"_N$(m.N).jld")
     JLD2.@load fname A B S ω evecs m Ω us bs

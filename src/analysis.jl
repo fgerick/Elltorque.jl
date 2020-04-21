@@ -1,3 +1,5 @@
+# reconstruct velocity and magnetic field from eigenvector. optionally calculate kinetic
+# and magnetic energies
 function get_ub1(λs,vs,vs_qg,cmat; ekin=false, getenergies=false)
     nqg=length(vs_qg)
     u = Mire.eigenvel(vs_qg,λs[1:nqg])#/mean(evecs[:,i]))
@@ -19,6 +21,7 @@ function get_ub1(λs,vs,vs_qg,cmat; ekin=false, getenergies=false)
     end
 end
 
+# reconstruct velocities and magnetic field from all eigenvectors computed
 function get_ub(evecs,vs,vs_qg,cmat; ekin=false, getenergies=false)
     nev = size(evecs,2)
     nqg = length(vs_qg)
@@ -48,6 +51,9 @@ end
 
 get_ub(evecs,vs,cmat; kwargs...) = get_ub(evecs,vs,vs,cmat; kwargs...)
 
+
+# tracking an eigensolution through the parameter space of equatorial ellipticities.
+# starting from a small value of ϵ and increase.
 function tracking_ellipt(m::ModelSetup{T,D},ϵs,σ0,LHS0,RHS0,b0f; verbose=false, kwargs...) where {T<:Number,D<:ModelDim}
     N,a,c,Le = m.N,m.a,m.c,m.Le
     Ω = [0,0,1/Le]
@@ -147,6 +153,8 @@ function tracking_ellipt(m::ModelSetup{T,D},ϵs,σ0,LHS0,RHS0,b0f; verbose=false
     return λs,us,ϵsout,vss
 end
 
+# tracking an eigensolution through the parameter space of equatorial ellipticities.
+# starting from a large value of ϵ and decrease.
 function tracking_ellipt_reverse(m::ModelSetup{T,D},ϵ0,dϵ,σ0,LHS0,RHS0,b0f; zerothresh=eps(), verbose=false, kwargs...) where {T<:Number,D<:ModelDim}
     N,a,c,Le = m.N,m.a,m.c,m.Le
     Ω = [0,0,1/Le]
@@ -249,6 +257,8 @@ function tracking_ellipt_reverse(m::ModelSetup{T,D},ϵ0,dϵ,σ0,LHS0,RHS0,b0f; z
     return λs,us,ϵsout,vss,cmats
 end
 
+# tracking an eigensolution through the parameter space of Lehnert numbers.
+# starting from a small value of Le and increase.
 function tracking_lehnert(m::ModelSetup{T,D},les,σ0,LHS0,RHS0; verbose=false, corrtol=0.99, maxdlefac=100, kwargs...) where {T<:Number,D<:ModelDim}
     k=0
     lesout=[les[1]]
@@ -339,6 +349,7 @@ function tracking_lehnert(m::ModelSetup{T,D},les,σ0,LHS0,RHS0; verbose=false, c
     return λs,us,lesout
 end
 
+# targeted shift-invert method using Arpack
 function eigstarget(A,B,target; kwargs...)
     P = lu(A-target*B)
     LO = LinearMap{ComplexF64}((y,x)->ldiv!(y,P,B*x),size(A,2))
@@ -347,14 +358,7 @@ function eigstarget(A,B,target; kwargs...)
     return λ,u
 end
 
-function eigen2(A,B; kwargs...)
-    C = inv(Matrix(B))*A
-    S = GenericSchur.triangularize(GenericSchur.gschur(C; kwargs...))
-    u = eigvecs(S)
-    return LinearAlgebra.Eigen(S.values, u)
-end
-
-
+# convenience function to calculate eigenmodes for a given model setup m
 function calculatemodes(m::ModelSetup{T,D},datapath="",SAVEDATA=false,dtypename="f64";ekin=false) where {T,D <: ModelDim}
     a, b, c, Le, b0, N = m.a, m.b, m.c, m.Le, m.b0, m.N
     Ω = [0,0,1/Le]

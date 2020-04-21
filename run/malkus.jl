@@ -2,6 +2,7 @@ if CALCULATE
     track_malkus(true, datapath)
 end
 
+#Figure 2
 function plotit(SAVEFIGS::Bool)
 
 
@@ -93,7 +94,7 @@ function plotit(SAVEFIGS::Bool)
        ax[3].set_xlim([1e-2,0.45])
        ax[3].set_ylim([1e-4,0.45^2])
        if SAVEFIGS
-           savefig(joinpath(figpath,"malkusmodes_m23_v2.pdf"),bbox_inches="tight")
+           savefig(joinpath(figpath,"malkusmodes_m23.pdf"),bbox_inches="tight")
        end
 
        gcf()

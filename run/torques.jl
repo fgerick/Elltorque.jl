@@ -152,24 +152,6 @@ if CALCULATE
     loadandcalculatetorque(mhyb_ϵ,datapath,true,"df64")
 end
 
-#
-# ϵ = df64"1e-4"
-# b = ((1 - ϵ)/(1 + ϵ))^(1//4)
-# a = 1/b
-# mqg_ϵ4 = ModelSetup(a,b,c,df64"1e-5",b0Af, "ellipse_aform7_eps4", 7, QG())
-# mhyb_ϵ4 = ModelSetup(a,b,c,df64"1e-5",b0_2_8, "ellipse_b289_eps4", 9, Hybrid());
-#
-#
-# if CALCULATE
-#     calculatemodes(mqg_ϵ4,datapath,true,"df64", ekin=true)
-#     calculatemodes(mhyb_ϵ4,datapath,true,"df64", ekin=true)
-#     loadandcalculatetorque(mqg_ϵ4,datapath,true,"df64")
-#     loadandcalculatetorque(mhyb_ϵ4,datapath,true,"df64")
-# end
-
-
-using Latexify, Unitful
-
 
 function tm_values_1m(m0::ModelSetup{T,D},u,iTM,datapath="";
                            dtypename = "df64") where {T <: Real, D <: ModelDim}
@@ -238,7 +220,7 @@ function tm_values_all(ms,u,iTM,datapath="";
    latexify(tab,env=:table, fmt=FancyNumberFormatter(3, "\\times"))
 end
 
-
+#reproduces values in table 1
 tm_values_all([mqg_ϵ,mhyb_ϵ],5e-6,3:-1:1,datapath)
 
 true
