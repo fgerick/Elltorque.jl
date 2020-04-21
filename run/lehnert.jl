@@ -28,6 +28,7 @@ function get_dense_background(m::ModelSetup{T,D},les) where {T,D<:ModelDim}
         push!(bs,b)
         push!(eks,ek)
         push!(ebs,eb)
+        @show le
     end
     return ωs,us,bs,eks,ebs
 end
@@ -92,7 +93,7 @@ if CALCULATE
 
     ωs,us,bs,eks,ebs = get_dense_background(m,les);
     println("highres and dense done")
-    
+
     usall = vcat(us...);
     bsall = vcat(bs...);
     angularmomall = broadcast(u->Elltorque.angularmom(u, cmat, 3), usall);
