@@ -16,10 +16,10 @@ tms = esol.values[1e-2.<imag.(esol.values).<1e2];
 TARGETS = tms[sortperm(abs.(tms))]
 
 if CALCULATE
-    λs1,us1,ϵsout1,vss1,cmats1 = tracking_ellipt_reverse(m, eps0 , 1e-3, TARGETS[1], LHS0, RHS0, b0Af; verbose=false);
-    λs2,us2,ϵsout2,vss2,cmats2 = tracking_ellipt_reverse(m, eps0 , 1e-3, TARGETS[2], LHS0, RHS0, b0Af; verbose=false);
-    λs3,us3,ϵsout3,vss3,cmats3 = tracking_ellipt_reverse(m, eps0 , 1e-3, TARGETS[3], LHS0, RHS0, b0Af; verbose=false);
-    λs4,us4,ϵsout4,vss4,cmats4 = tracking_ellipt_reverse(m, eps0 , 1e-3, TARGETS[4], LHS0, RHS0, b0Af; verbose=false);
+    λs1,us1,ϵsout1,vss1,cmats1 = tracking_ellipt_reverse(m, eps0 , 1e-3, TARGETS[1], LHS0, RHS0, b0Af; verbose=true);
+    λs2,us2,ϵsout2,vss2,cmats2 = tracking_ellipt_reverse(m, eps0 , 1e-3, TARGETS[2], LHS0, RHS0, b0Af; verbose=true);
+    λs3,us3,ϵsout3,vss3,cmats3 = tracking_ellipt_reverse(m, eps0 , 1e-3, TARGETS[3], LHS0, RHS0, b0Af; verbose=true);
+    λs4,us4,ϵsout4,vss4,cmats4 = tracking_ellipt_reverse(m, eps0 , 1e-3, TARGETS[4], LHS0, RHS0, b0Af; verbose=true);
 
     v1,b1,ek1,eb1 = get_ub1.(us1./mean.(us1),vss1,vss1,cmats1,getenergies=true) |> destruct;
     v2,b2,ek2,eb2 = get_ub1.(us2./mean.(us2),vss2,vss2,cmats2,getenergies=true) |> destruct;
@@ -128,10 +128,10 @@ if CALCULATE
     tms = esol.values[1e-2.<imag.(esol.values).<1e2];
     TARGETS = tms[sortperm(abs.(tms))]
 
-    λs1,us1,ϵsout1,vss1,cmats1 = tracking_ellipt_reverse(m, eps0 , 1e-3, TARGETS[1], LHS0, RHS0, b0_2_8; zerothresh=1e-10, verbose=false);
-    λs2,us2,ϵsout2,vss2,cmats2 = tracking_ellipt_reverse(m, eps0 , 1e-3, TARGETS[2], LHS0, RHS0, b0_2_8; verbose=false);
-    λs3,us3,ϵsout3,vss3,cmats3 = tracking_ellipt_reverse(m, eps0 , 1e-3, TARGETS[3], LHS0, RHS0, b0_2_8; verbose=false);
-    λs4,us4,ϵsout4,vss4,cmats4 = tracking_ellipt_reverse(m, eps0 , 1e-3, TARGETS[4], LHS0, RHS0, b0_2_8; verbose=false);
+    λs1,us1,ϵsout1,vss1,cmats1 = tracking_ellipt_reverse(m, eps0 , 1e-3, TARGETS[1], LHS0, RHS0, b0_2_8; zerothresh=1e-10, verbose=true);
+    λs2,us2,ϵsout2,vss2,cmats2 = tracking_ellipt_reverse(m, eps0 , 1e-3, TARGETS[2], LHS0, RHS0, b0_2_8; verbose=true);
+    λs3,us3,ϵsout3,vss3,cmats3 = tracking_ellipt_reverse(m, eps0 , 1e-3, TARGETS[3], LHS0, RHS0, b0_2_8; verbose=true);
+    λs4,us4,ϵsout4,vss4,cmats4 = tracking_ellipt_reverse(m, eps0 , 1e-3, TARGETS[4], LHS0, RHS0, b0_2_8; verbose=true);
     v1,b1,ek1,eb1 = get_ub1.(us1./mean.(us1),getindex.(vss1,1),getindex.(vss1,2),cmats1,getenergies=true) |> destruct;
     v2,b2,ek2,eb2 = get_ub1.(us2./mean.(us2),getindex.(vss2,1),getindex.(vss2,2),cmats2,getenergies=true) |> destruct;
     v3,b3,ek3,eb3 = get_ub1.(us3./mean.(us3),getindex.(vss3,1),getindex.(vss3,2),cmats3,getenergies=true) |> destruct;
