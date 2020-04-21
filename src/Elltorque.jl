@@ -129,7 +129,7 @@ end
 
 export ModelSetup, ModelDim, Full, Hybrid, QG, calculatemodes, split_ug_ua,
        torquebalance, loadandcalculatetorque, runcalculations,tracking_lehnert,
-       tracking_ellipt, tracking_ellipt_reverse
+       tracking_ellipt, tracking_ellipt_reverse, get_ub, get_ub1
 
 export b0_1_1,b0_1_2,b0_1_3,b0_2_6,b0_2_7,b0_2_8,b0_2_9,b0_3_6, b0_Aform
 #

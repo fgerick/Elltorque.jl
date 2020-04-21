@@ -55,11 +55,11 @@ if CALCULATE
     fastest_slowmode = slowmodes[sortperm(abs.(slowmodes))[end]]
     les=10.0.^range(-6,-2,length=200);
 
-    λs1,us1,lesout1  = tracking_lehnert(m, les, TARGETS[1], LHS0, RHS0,nev=2,verbose=false)
-    λs2,us2,lesout2 = tracking_lehnert(m, les, TARGETS[2], LHS0, RHS0,nev=2,verbose=false)
-    λs3,us3,lesout3 = tracking_lehnert(m, les, TARGETS[3], LHS0, RHS0,nev=2,verbose=false)
-    λs4,us4,lesout4 = tracking_lehnert(m, les, TARGETS[4], LHS0, RHS0,nev=2,verbose=false)
-    λs5,us5,lesout5 = tracking_lehnert(m, les, fastest_slowmode, LHS0, RHS0,nev=2,verbose=false)
+    λs1,us1,lesout1  = tracking_lehnert(m, les, TARGETS[1], LHS0, RHS0,nev=2,verbose=true)
+    λs2,us2,lesout2 = tracking_lehnert(m, les, TARGETS[2], LHS0, RHS0,nev=2,verbose=true)
+    λs3,us3,lesout3 = tracking_lehnert(m, les, TARGETS[3], LHS0, RHS0,nev=2,verbose=true)
+    λs4,us4,lesout4 = tracking_lehnert(m, les, TARGETS[4], LHS0, RHS0,nev=2,verbose=true)
+    λs5,us5,lesout5 = tracking_lehnert(m, les, fastest_slowmode, LHS0, RHS0,nev=2,verbose=true)
 
     v1,b1,ek1,eb1 = broadcast(us->Elltorque.get_ub1(us/mean(us),vs_qg0,vs_qg0,cmat,getenergies=true),us1) |> destruct;
     v2,b2,ek2,eb2 = broadcast(us->Elltorque.get_ub1(us/mean(us),vs_qg0,vs_qg0,cmat,getenergies=true),us2) |> destruct;
@@ -303,11 +303,11 @@ if CALCULATE
     fastest_slowmode = slowmodes[sortperm(abs.(slowmodes))[end]]
 
     les=10.0.^range(-6,-2,length=200);
-    λs1,us1,lesout1  = tracking_lehnert(m, les, TARGETS[1], LHS0, RHS0,nev=2,verbose=false)
-    λs2,us2,lesout2 = tracking_lehnert(m, les, TARGETS[2], LHS0, RHS0,nev=2,verbose=false)
-    λs3,us3,lesout3 = tracking_lehnert(m, les, TARGETS[3], LHS0, RHS0,nev=2,verbose=false)
-    λs4,us4,lesout4 = tracking_lehnert(m, les, TARGETS[4], LHS0, RHS0,nev=2,verbose=false)
-    λs5,us5,lesout5 = tracking_lehnert(m, les, fastest_slowmode, LHS0, RHS0,nev=2,verbose=false);
+    λs1,us1,lesout1  = tracking_lehnert(m, les, TARGETS[1], LHS0, RHS0,nev=2,verbose=true)
+    λs2,us2,lesout2 = tracking_lehnert(m, les, TARGETS[2], LHS0, RHS0,nev=2,verbose=true)
+    λs3,us3,lesout3 = tracking_lehnert(m, les, TARGETS[3], LHS0, RHS0,nev=2,verbose=true)
+    λs4,us4,lesout4 = tracking_lehnert(m, les, TARGETS[4], LHS0, RHS0,nev=2,verbose=true)
+    λs5,us5,lesout5 = tracking_lehnert(m, les, fastest_slowmode, LHS0, RHS0,nev=2,verbose=true);
 
     v1,b1,ek1,eb1 = broadcast(us->Elltorque.get_ub1(us/mean(us),vs0,vs_qg0,cmat,getenergies=true),us1) |> destruct;
     v2,b2,ek2,eb2 = broadcast(us->Elltorque.get_ub1(us/mean(us),vs0,vs_qg0,cmat,getenergies=true),us2) |> destruct;
