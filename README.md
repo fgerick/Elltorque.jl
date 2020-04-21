@@ -19,12 +19,11 @@ To run the calculations and the plots you simply run
 using Elltorque
 Elltorque.run(true)
 ```
-
-To run without calculating use
+from within the Julia REPL. To run without calculating use
 
 ```julia
 Elltorque.run(false)
 ```
 
 ## Citation
-If you use this software please cite the article [Pressure torque of torsional Alfvén modes acting on an ellipsoidal mantle](https://doi.org/10.1093/gji/ggaa166).
+If you use this data and/or software please cite the article [Pressure torque of torsional Alfvén modes acting on an ellipsoidal mantle](https://doi.org/10.1093/gji/ggaa166).
