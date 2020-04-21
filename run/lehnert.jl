@@ -52,27 +52,27 @@ if CALCULATE
     tms = esol.values[1e-1.<imag.(esol.values).<50]
     TARGETS = tms[sortperm(abs.(tms))]
     slowmodes = esol.values[abs.(esol.values).<1e-2]
-    fastest_slowmode = slowmodes[sortperm(abs.(slowmodes))[end]]
+    # fastest_slowmode = slowmodes[sortperm(abs.(slowmodes))[end]]
     les=10.0.^range(-6,-2,length=200);
 
     λs1,us1,lesout1  = tracking_lehnert(m, les, TARGETS[1], LHS0, RHS0,nev=2,verbose=false)
     λs2,us2,lesout2 = tracking_lehnert(m, les, TARGETS[2], LHS0, RHS0,nev=2,verbose=false)
     λs3,us3,lesout3 = tracking_lehnert(m, les, TARGETS[3], LHS0, RHS0,nev=2,verbose=false)
     λs4,us4,lesout4 = tracking_lehnert(m, les, TARGETS[4], LHS0, RHS0,nev=2,verbose=false)
-    λs5,us5,lesout5 = tracking_lehnert(m, les, fastest_slowmode, LHS0, RHS0,nev=2,verbose=false)
+    # λs5,us5,lesout5 = tracking_lehnert(m, les, fastest_slowmode, LHS0, RHS0,nev=2,verbose=false)
 
     v1,b1,ek1,eb1 = broadcast(us->Elltorque.get_ub1(us/mean(us),vs_qg0,vs_qg0,cmat,getenergies=true),us1) |> destruct;
     v2,b2,ek2,eb2 = broadcast(us->Elltorque.get_ub1(us/mean(us),vs_qg0,vs_qg0,cmat,getenergies=true),us2) |> destruct;
     v3,b3,ek3,eb3 = broadcast(us->Elltorque.get_ub1(us/mean(us),vs_qg0,vs_qg0,cmat,getenergies=true),us3) |> destruct;
     v4,b4,ek4,eb4 = broadcast(us->Elltorque.get_ub1(us/mean(us),vs_qg0,vs_qg0,cmat,getenergies=true),us4) |> destruct;
-    v5,b5,ek5,eb5 = broadcast(us->Elltorque.get_ub1(us/mean(us),vs_qg0,vs_qg0,cmat,getenergies=true),us5) |> destruct;
+    # v5,b5,ek5,eb5 = broadcast(us->Elltorque.get_ub1(us/mean(us),vs_qg0,vs_qg0,cmat,getenergies=true),us5) |> destruct;
 
 
     L1 = [Elltorque.angularmom(v,cmat,3) for v in v1];
     L2 = [Elltorque.angularmom(v,cmat,3) for v in v2];
     L3 = [Elltorque.angularmom(v,cmat,3) for v in v3];
     L4 = [Elltorque.angularmom(v,cmat,3) for v in v4];
-    L5 = [Elltorque.angularmom(v,cmat,3) for v in v5];
+    # L5 = [Elltorque.angularmom(v,cmat,3) for v in v5];
 
     λs1_ac,us1_ac,lesout1_ac,λs2_ac,us2_ac,lesout2_ac = highres_avoidedcrossing(0.376im,0.355im,7.7e-4,8.3e-4,100,m,LHS0,RHS0);
 
@@ -96,8 +96,8 @@ if CALCULATE
     JLD2.@save fname λs3 us3 lesout3 v3 L3 b3 ek3 eb3
     fname = joinpath(datapath, "tracking_lehnert_qg_mode4.jld2")
     JLD2.@save fname λs4 us4 lesout4 v4 L4 b4 ek4 eb4
-    fname = joinpath(datapath, "tracking_lehnert_qg_mode5.jld2")
-    JLD2.@save fname λs5 us5 lesout5 v5 L5 b5 ek5 eb5
+    # fname = joinpath(datapath, "tracking_lehnert_qg_mode5.jld2")
+    # JLD2.@save fname λs5 us5 lesout5 v5 L5 b5 ek5 eb5
     fname = joinpath(datapath, "tracking_lehnert_qg_dense_ratios.jld2")
     JLD2.@save fname lesall evalsall ratiosall usall bsall angularmomall
     fname = joinpath(datapath, "tracking_lehnert_qg_avoided_zoom.jld2")

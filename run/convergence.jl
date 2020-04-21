@@ -4,13 +4,13 @@ if CALCULATE
 
     function torsion_2D(n,a,b,c,Ω,asymmfield,thresh_l,thresh_u,cmat; verbose=true)
         LHS,RHS,vs_qg = Mire.assemblemhd_qg(n,a,b,c,Ω,b0,cmat=cmat)
-        esol = eigen(Matrix(inv(Matrix(LHS))*RHS));
-        torsionals = eachindex(esol.values)[(thresh_l .< abs.(imag.(esol.values)) .< thresh_u)]
+        evals = eigvals(Matrix(inv(Matrix(LHS))*RHS));
+        torsionals = eachindex(evals)[(thresh_l .< abs.(imag.(evals)) .< thresh_u)]
         if verbose
             println("N=$n :")
-            println(imag.(esol.values[torsionals]))
+            println(imag.(evals[torsionals]))
         end
-        return esol.values[torsionals]
+        return evals[torsionals]
     end
 
     function b0_Aform(p_xy,a,b,c)
