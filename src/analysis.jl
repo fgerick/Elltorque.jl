@@ -138,8 +138,8 @@ function tracking_ellipt(m::ModelSetup{T,D},ϵs,σ0,LHS0,RHS0,b0f; verbose=false
             @show ϵ
             ω = abs(target)
             @show ω
-            flush(stdout)
-            flush(stderr)
+            # flush(stdout)
+            # flush(stderr)
         end
         push!(targets,target)
         k+=1
@@ -240,8 +240,8 @@ function tracking_ellipt_reverse(m::ModelSetup{T,D},ϵ0,dϵ,σ0,LHS0,RHS0,b0f; z
             @show ϵ
             ω = abs(target)
             @show ω
-            flush(stdout)
-            flush(stderr)
+            # flush(stdout)
+            # flush(stderr)
         end
         push!(targets,target)
         k+=1
@@ -325,8 +325,8 @@ function tracking_lehnert(m::ModelSetup{T,D},les,σ0,LHS0,RHS0; verbose=false, c
             ω=abs(target)
             @show ω
 
-            flush(stdout)
-            flush(stderr)
+            # flush(stdout)
+            # flush(stderr)
         end
         push!(targets,target)
         k+=1

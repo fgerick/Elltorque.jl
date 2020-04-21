@@ -55,17 +55,27 @@ if CALCULATE
     fastest_slowmode = slowmodes[sortperm(abs.(slowmodes))[end]]
     les=10.0.^range(-6,-2,length=200);
 
-    λs1,us1,lesout1  = tracking_lehnert(m, les, TARGETS[1], LHS0, RHS0,nev=2,verbose=true)
-    λs2,us2,lesout2 = tracking_lehnert(m, les, TARGETS[2], LHS0, RHS0,nev=2,verbose=true)
-    λs3,us3,lesout3 = tracking_lehnert(m, les, TARGETS[3], LHS0, RHS0,nev=2,verbose=true)
-    λs4,us4,lesout4 = tracking_lehnert(m, les, TARGETS[4], LHS0, RHS0,nev=2,verbose=true)
-    λs5,us5,lesout5 = tracking_lehnert(m, les, fastest_slowmode, LHS0, RHS0,nev=2,verbose=true)
+    λs1,us1,lesout1  = tracking_lehnert(m, les, TARGETS[1], LHS0, RHS0,nev=2,verbose=false)
+    println("qg 1 done")
+    λs2,us2,lesout2 = tracking_lehnert(m, les, TARGETS[2], LHS0, RHS0,nev=2,verbose=false)
+    println("qg 2 done")
+    λs3,us3,lesout3 = tracking_lehnert(m, les, TARGETS[3], LHS0, RHS0,nev=2,verbose=false)
+    println("qg 3 done")
+    λs4,us4,lesout4 = tracking_lehnert(m, les, TARGETS[4], LHS0, RHS0,nev=2,verbose=false)
+    println("qg 4 done")
+    λs5,us5,lesout5 = tracking_lehnert(m, les, fastest_slowmode, LHS0, RHS0,nev=2,verbose=false)
+    println("qg 5 done")
 
     v1,b1,ek1,eb1 = broadcast(us->Elltorque.get_ub1(us/mean(us),vs_qg0,vs_qg0,cmat,getenergies=true),us1) |> destruct;
+    println("qg ub 1 done")
     v2,b2,ek2,eb2 = broadcast(us->Elltorque.get_ub1(us/mean(us),vs_qg0,vs_qg0,cmat,getenergies=true),us2) |> destruct;
+    println("qg ub 2 done")
     v3,b3,ek3,eb3 = broadcast(us->Elltorque.get_ub1(us/mean(us),vs_qg0,vs_qg0,cmat,getenergies=true),us3) |> destruct;
+    println("qg ub 3 done")
     v4,b4,ek4,eb4 = broadcast(us->Elltorque.get_ub1(us/mean(us),vs_qg0,vs_qg0,cmat,getenergies=true),us4) |> destruct;
+    println("qg ub 4 done")
     v5,b5,ek5,eb5 = broadcast(us->Elltorque.get_ub1(us/mean(us),vs_qg0,vs_qg0,cmat,getenergies=true),us5) |> destruct;
+    println("qg ub 5 done")
 
 
     L1 = [Elltorque.angularmom(v,cmat,3) for v in v1];
@@ -73,6 +83,7 @@ if CALCULATE
     L3 = [Elltorque.angularmom(v,cmat,3) for v in v3];
     L4 = [Elltorque.angularmom(v,cmat,3) for v in v4];
     L5 = [Elltorque.angularmom(v,cmat,3) for v in v5];
+    println("qg angular mom done")
 
     λs1_ac,us1_ac,lesout1_ac,λs2_ac,us2_ac,lesout2_ac = highres_avoidedcrossing(0.376im,0.355im,7.7e-4,8.3e-4,100,m,LHS0,RHS0);
 
@@ -80,7 +91,8 @@ if CALCULATE
     v2_ac,b2_ac,ek2_ac,eb2_ac = broadcast(us->Elltorque.get_ub1(us/mean(us),vs_qg0,vs_qg0,cmat,getenergies=true),us2_ac) |> destruct;
 
     ωs,us,bs,eks,ebs = get_dense_background(m,les);
-
+    println("highres and dense done")
+    
     usall = vcat(us...);
     bsall = vcat(bs...);
     angularmomall = broadcast(u->Elltorque.angularmom(u, cmat, 3), usall);
@@ -303,24 +315,35 @@ if CALCULATE
     fastest_slowmode = slowmodes[sortperm(abs.(slowmodes))[end]]
 
     les=10.0.^range(-6,-2,length=200);
-    λs1,us1,lesout1  = tracking_lehnert(m, les, TARGETS[1], LHS0, RHS0,nev=2,verbose=true)
-    λs2,us2,lesout2 = tracking_lehnert(m, les, TARGETS[2], LHS0, RHS0,nev=2,verbose=true)
-    λs3,us3,lesout3 = tracking_lehnert(m, les, TARGETS[3], LHS0, RHS0,nev=2,verbose=true)
-    λs4,us4,lesout4 = tracking_lehnert(m, les, TARGETS[4], LHS0, RHS0,nev=2,verbose=true)
-    λs5,us5,lesout5 = tracking_lehnert(m, les, fastest_slowmode, LHS0, RHS0,nev=2,verbose=true);
+    λs1,us1,lesout1  = tracking_lehnert(m, les, TARGETS[1], LHS0, RHS0,nev=2,verbose=false)
+    println("hyb 1 done")
+    λs2,us2,lesout2 = tracking_lehnert(m, les, TARGETS[2], LHS0, RHS0,nev=2,verbose=false)
+    println("hyb 2 done")
+    λs3,us3,lesout3 = tracking_lehnert(m, les, TARGETS[3], LHS0, RHS0,nev=2,verbose=false)
+    println("hyb 3 done")
+    λs4,us4,lesout4 = tracking_lehnert(m, les, TARGETS[4], LHS0, RHS0,nev=2,verbose=false)
+    println("hyb 4 done")
+    λs5,us5,lesout5 = tracking_lehnert(m, les, fastest_slowmode, LHS0, RHS0,nev=2,verbose=false);
+    println("hyb 5 done")
 
     v1,b1,ek1,eb1 = broadcast(us->Elltorque.get_ub1(us/mean(us),vs0,vs_qg0,cmat,getenergies=true),us1) |> destruct;
+    println("hyb ub 1 done")
     v2,b2,ek2,eb2 = broadcast(us->Elltorque.get_ub1(us/mean(us),vs0,vs_qg0,cmat,getenergies=true),us2) |> destruct;
+    println("hyb ub 2 done")
     v3,b3,ek3,eb3 = broadcast(us->Elltorque.get_ub1(us/mean(us),vs0,vs_qg0,cmat,getenergies=true),us3) |> destruct;
+    println("hyb ub 3 done")
     v4,b4,ek4,eb4 = broadcast(us->Elltorque.get_ub1(us/mean(us),vs0,vs_qg0,cmat,getenergies=true),us4) |> destruct;
+    println("hyb ub 4 done")
     v5,b5,ek5,eb5 = broadcast(us->Elltorque.get_ub1(us/mean(us),vs0,vs_qg0,cmat,getenergies=true),us5) |> destruct;
-
+    println("hyb ub 5 done")
 
     L1 = [Elltorque.angularmom(v,cmat,3) for v in v1];
     L2 = [Elltorque.angularmom(v,cmat,3) for v in v2];
     L3 = [Elltorque.angularmom(v,cmat,3) for v in v3];
     L4 = [Elltorque.angularmom(v,cmat,3) for v in v4];
     L5 = [Elltorque.angularmom(v,cmat,3) for v in v5];
+
+    println("hyb amom done")
 
     ωs,us,bs,eks,ebs = get_dense_background(m,les);
 
