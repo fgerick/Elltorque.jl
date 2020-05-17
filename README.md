@@ -1,5 +1,10 @@
 # Elltorque
 
+
+[![Build Status](https://travis-ci.com/fgerick/Elltorque.jl.svg?token=NJNkFC9qALxxCxMBhjwi&branch=master)](https://travis-ci.com/fgerick/Elltorque.jl)
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.3631244.svg)](https://doi.org/10.5281/zenodo.3631244)
+
+
 Results and figures used in [Pressure torque of torsional Alfvén modes acting on an ellipsoidal mantle](https://doi.org/10.1093/gji/ggaa166).
 
 ## Prerequisites
